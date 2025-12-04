@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import Outfit font */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+@layer base {
+  :root {
+    /* Light theme variables - Midnight branding */
+    --background: 0 0% 100%; /* Pure white */
+    --foreground: 0 0% 4%; /* Midnight black */
+    --card: 0 0% 100%; /* White cards */
+    --card-foreground: 0 0% 4%; /* Black text */
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 4%;
+    --primary: 240 100% 50%; /* Midnight blue #0000FE */
+    --primary-foreground: 0 0% 100%; /* White text on blue */
+    --secondary: 220 14% 96%; /* Light gray */
+    --secondary-foreground: 0 0% 4%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 215 14% 34%;
+    --accent: 220 14% 96%;
+    --accent-foreground: 0 0% 4%;
+    --destructive: 0 84% 60%; /* red */
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13% 91%; /* Light gray border */
+    --input: 220 13% 91%;
+    --ring: 240 100% 50%; /* Midnight blue ring */
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    /* Dark theme variables - Midnight branding */
+    --background: 0 0% 4%; /* Midnight black #0A0A0A */
+    --foreground: 0 0% 98%; /* Almost white text */
+    --card: 0 0% 8%; /* Slightly lighter than background */
+    --card-foreground: 0 0% 98%; /* Almost white text on cards */
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 240 100% 50%; /* Midnight blue #0000FE */
+    --primary-foreground: 0 0% 100%; /* Pure white text on blue */
+    --secondary: 0 0% 12%; /* Lighter gray */
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 12%; /* Lighter muted background */
+    --muted-foreground: 0 0% 65%; /* Better contrast for muted text */
+    --accent: 0 0% 12%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 84% 60%; /* Brighter red for dark mode */
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 15%; /* Visible but subtle borders */
+    --input: 0 0% 12%; /* Input backgrounds */
+    --ring: 240 100% 50%; /* Midnight blue ring */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground font-sans;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    font-optical-sizing: auto;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+}
