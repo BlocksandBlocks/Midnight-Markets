@@ -78,9 +78,9 @@ export function ContractInterface() {
       className="min-h-screen bg-gradient-to-br from-midnight-black via-gray-900 to-midnight-blue p-4" // Modern gradient background
     >
       <Card className="w-full max-w-6xl mx-auto overflow-hidden shadow-2xl border-0 bg-gradient-to-br from-midnight-black via-gray-900 to-midnight-blue/80 backdrop-blur-sm"> {/* Enhanced card with gradient & blur */}
-        <CardHeader className="relative pb-12"> {/* Increased pb for centered image space */}
-          {/* Beautiful Crescent Moon Image – Now centered at top */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 -mt-8 w-64 h-64 opacity-40 z-0"> {/* Centered with transform, larger for impact, lower z for background feel */}
+        <CardHeader className="relative pb-50"> {/* Increased pb further for more space below the moon */}
+          {/* Beautiful Crescent Moon Image – Now higher and centered at top */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 -mt-20 w-64 h-64 opacity-40 z-0"> {/* Higher positioning with -mt-16 to lift above title */}
             <Image
               src="https://cdn.midjourney.com/6f2d84d7-d1f1-4a87-80f3-72bf87e369dc/0_0.png" // Your Midjourney crescent moon image
               alt="Crescent Moon – Symbol of Midnight Blockchain"
@@ -90,11 +90,11 @@ export function ContractInterface() {
               priority // Optimizes for above-the-fold
             />
           </div>
-          <CardTitle className="text-4xl font-bold text-center text-white drop-shadow-lg relative z-10"> {/* Larger, shadowed title */}
+          <CardTitle className="text-4xl font-bold text-center text-white drop-shadow-lg relative z-10 mt-4"> {/* Added mt-8 to push title down below moon */}
             {CONTRACT_CONFIG.name}
           </CardTitle>
           <CardDescription className="text-center text-gray-300 relative z-10 mt-2"> {/* Softer text */}
-            Decentralized marketplace for goods and services, secured by Sheriffs under the midnight sky.
+            Decentralized marketplace for goods and services, secured by Sheriffs.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-8 p-8">
