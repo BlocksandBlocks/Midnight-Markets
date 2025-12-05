@@ -4,7 +4,7 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   experimental: {
-    optimizePackageImports: ['lucide-react'],
+   // optimizePackageImports: ['lucide-react'], // Temporarily disabled to fix JSX parsing error
   },
   // Configure for Midnight network integration
   webpack: (config) => {
