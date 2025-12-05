@@ -1,4 +1,3 @@
-
 'use client'
 
 import { useState, useEffect } from 'react';
@@ -70,6 +69,7 @@ export function ContractInterface() {
       </CardHeader>
       <CardContent className="space-y-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Create Market Card */}
           <Card className="bg-midnight-black text-midnight-white border-midnight-blue">
             <CardHeader>
               <CardTitle className="text-xl flex items-center">
@@ -128,6 +128,7 @@ export function ContractInterface() {
             </CardContent>
           </Card>
 
+          {/* Post Offer Card */}
           <Card className="bg-midnight-black text-midnight-white border-midnight-blue">
             <CardHeader>
               <CardTitle className="text-xl flex items-center">
@@ -196,6 +197,7 @@ export function ContractInterface() {
             </CardContent>
           </Card>
 
+          {/* Accept Offer Card */}
           <Card className="bg-midnight-black text-midnight-white border-midnight-blue">
             <CardHeader>
               <CardTitle className="text-xl flex items-center">
@@ -254,6 +256,7 @@ export function ContractInterface() {
             </CardContent>
           </Card>
 
+          {/* Release Funds (Sheriff) Card – This was where it truncated! */}
           <Card className="bg-midnight-black text-midnight-white border-midnight-blue">
             <CardHeader>
               <CardTitle className="text-xl flex items-center">
@@ -302,6 +305,7 @@ export function ContractInterface() {
             </CardContent>
           </Card>
 
+          {/* Additional Cards for Completeness (Based on Your States – Add/Remove as Needed) */}
           <Card className="bg-midnight-black text-midnight-white border-midnight-blue">
             <CardHeader>
               <CardTitle className="text-xl flex items-center">
@@ -378,7 +382,7 @@ export function ContractInterface() {
             </CardContent>
           </Card>
 
-          <Card className="bg-midnight-black text-midnight-white border-midnight-blue">
+          <Card className="bg-midnight-black text-midnight-white border-midnight-blue md:col-span-2">
             <CardHeader>
               <CardTitle className="text-xl flex items-center">
                 <XCircle className="w-5 h-5 mr-2" /> Cancel Offer (Seller)
@@ -416,10 +420,10 @@ export function ContractInterface() {
             </CardContent>
           </Card>
 
-          <Card className="bg-midnight-black text-midnight-white border-midnight-blue">
+          <Card className="bg-midnight-black text-midnight-white border-midnight-blue md:col-span-2">
             <CardHeader>
               <CardTitle className="text-xl flex items-center">
-                <CheckCircle className="w-5 h-5 mr-2" /> Submit Proof
+                <Handshake className="w-5 h-5 mr-2" /> Submit Proof
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -458,18 +462,27 @@ export function ContractInterface() {
                 disabled={loading || !isConnected}
                 className="w-full bg-midnight-blue hover:bg-blue-700 text-white"
               >
-                {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle className="mr-2 h-4 w-4" />}
+                {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Handshake className="mr-2 h-4 w-4" />}
                 Submit Proof
               </Button>
             </CardContent>
           </Card>
         </div>
 
+        {/* Contract State Display */}
         <Card className="bg-midnight-black text-midnight-white border-midnight-blue">
           <CardHeader>
-            <CardTitle className="text-xl">Current Contract State</CardTitle>
+            <CardTitle className="text-xl">Contract State</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2 text-sm">
-            <p><strong>Owner ID:</strong> <Badge variant="outline">{contractState.owner_id}</Badge></p>
-            <p><strong>Platform Fee:</strong> <Badge variant="outline">{contractState.platform_fee_percentage / 100}%</Badge></p>
-            
+          <CardContent>
+            <div className="space-y-2">
+              <p><strong>Owner ID:</strong> {contractState.owner_id}</p>
+              <p><strong>Platform Fee:</strong> {contractState.platform_fee_percentage / 100}%</p>
+              {/* Add more state displays as needed, e.g., active markets/offers */}
+            </div>
+          </CardContent>
+        </Card>
+      </CardContent>
+    </Card>
+  );
+}
