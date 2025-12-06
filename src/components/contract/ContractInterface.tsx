@@ -84,7 +84,7 @@ function ContractInterface() {
             src="/moon.png" // Your uploaded local image
             alt="Crescent Moon – Symbol of Midnight Blockchain"
             fill // Fills container responsively
-            className="rounded-full object-cover opacity-40" // Semi-transparent, rounded
+            className="object-contain opacity-40" // Full rectangular, no cropping; object-contain shows entire image preserving aspect ratio
             priority // Loads immediately
             sizes="256px" // Responsive sizes for perf
           />
