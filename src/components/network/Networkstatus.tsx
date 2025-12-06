@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge'
 import { useWalletStore } from '@/lib/stores/walletStore'
 import { Wifi, WifiOff } from 'lucide-react'
 
-export function NetworkStatus() {
+function NetworkStatus() {
   const { isConnected } = useWalletStore()
 
   if (!isConnected) {
@@ -23,3 +23,5 @@ export function NetworkStatus() {
     </div>
   )
 }
+
+export { NetworkStatus }
