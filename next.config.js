@@ -1,5 +1,6 @@
-/** @type
- {import('next').NextConfig} */
+const path = require('path');
+
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
@@ -14,18 +15,17 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'images.unsplash.com',
         port: '',
-        pathname: '/',
+        pathname: '/**',
       },
       {
         protocol: 'https',
         hostname: 'cdn.midjourney.com',
         port: '',
-        pathname: '/',
+        pathname: '/**',
       },
     ],
   },
-  transpilePackages: ['@midnight
--ntwrk/dapp-connector-api'],  // For Midnight deps
+  transpilePackages: ['@midnight-ntwrk/dapp-connector-api'],  // For Midnight deps
   webpack: (config) => {
     // Your existing fallbacks
     config.resolve.fallback = {
@@ -37,11 +37,12 @@ const nextConfig = {
     // Add @ alias for src
     config.resolve.alias = {
       ...config.resolve.alias,
-      '@': require('path').resolve('./src'),
+      '@': path.resolve('./src'),
     };
     // Ignore case for aliases (fixes UI/ui mismatch)
     config.resolve.caseSensitive = false;
     return config;
   },
-};module.exports = nextConfig;
+};
 
+module.exports = nextConfig;
