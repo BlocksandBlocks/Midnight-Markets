@@ -1,6 +1,8 @@
 'use client';
 
 interface MockState {
+  owner_id: number;
+  platform_fee_percentage: number;
   market_sheriffs: Record<number, number>;
   offers: Record<number, { seller_id: number; amount: number; details_hash: string }>;
   // Add more fields as needed for other functions
@@ -14,6 +16,8 @@ interface CallResult {
 
 class ContractService {
   private mockState: MockState = {
+    owner_id: 1,
+    platform_fee_percentage: 100,  // 1%
     market_sheriffs: {},
     offers: {},
   };
@@ -57,6 +61,10 @@ class ContractService {
         case 'set_platform_fee': {
           const [new_fee, owner_id] = params as [number, number];
           // Mock owner check
+          if (owner_id !== this.mockState.owner_id) {
+            throw new Error("Unauthorized: Only owner can set fee");
+          }
+          this.mockState.platform_fee_percentage = new_fee;
           return { success: true, message: `Platform fee set to ${new_fee} bps by owner ${owner_id}` };
         }
         case 'cancel_offer_by_sheriff': {
