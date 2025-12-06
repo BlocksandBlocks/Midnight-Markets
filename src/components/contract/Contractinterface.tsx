@@ -12,7 +12,7 @@ import { CONTRACT_CONFIG } from '@/lib/CONTRACT_CONFIG';
 import { toast } from 'sonner';
 import { Loader2, PlusCircle, Handshake, CheckCircle, DollarSign, XCircle, Settings } from 'lucide-react';
 
-export function ContractInterface() {
+function ContractInterface() {
   const { isConnected, walletState } = useWalletStore();
   const [contractState, setContractState] = useState(contractService.getState());
   const [loading, setLoading] = useState(false);
@@ -626,3 +626,5 @@ export function ContractInterface() {
     </motion.div>
   );
 }
+
+export { ContractInterface }
