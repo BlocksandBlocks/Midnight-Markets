@@ -39,8 +39,6 @@ const nextConfig = {
       ...config.resolve.alias,
       '@': path.resolve('./src'),
     };
-    // Ignore case for aliases (fixes UI/ui mismatch)
-    config.resolve.caseSensitive = false;
     return config;
   },
 };
