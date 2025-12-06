@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { useWalletStore } from '@/lib/stores/walletStore'
 import { Loader2, Wallet } from 'lucide-react'
 
-export function WalletConnect() {
+function WalletConnect() {
   const { isConnected, isConnecting, connect, disconnect, walletState } = useWalletStore()
 
   const handleConnect = async () => {
@@ -61,3 +61,5 @@ export function WalletConnect() {
     </Button>
   )
 }
+
+export { WalletConnect }
