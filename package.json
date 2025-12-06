@@ -35,6 +35,9 @@
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",
     "zustand": "^4.5.2"
+    "next": "^15.0.0",  // Up from 14.1.0
+    "react": "^18.3.1",  // Compatible with 15
+    "react-dom": "^18.3.1",
   },
   "devDependencies": {
     "@types/node": "^20.14.8",
@@ -47,6 +50,8 @@
     "postcss": "^8.4.38",
     "tailwindcss": "^3.4.4",
     "typescript": "^5.5.2"
+    "eslint-config-next": "^15.0.0",  // Up for linting
+    "typescript": "^5.5.4",  // Minor bump if needed
   },
   "engines": {
     "node": ">=18.17.0"
