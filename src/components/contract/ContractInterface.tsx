@@ -77,23 +77,22 @@ function ContractInterface() {
       transition={{ duration: 0.8 }}
       className="min-h-screen bg-gradient-to-br from-midnight-black via-gray-900 to-midnight-blue p-4" // Modern gradient background
     >
+      <div className="flex justify-center mb-8"> {/* Standalone moon container above everything */}
+        <Image
+          src="https://cdn.midjourney.com/6f2d84d7-d1f1-4a87-80f3-72bf87e369dc/0_0.png" // Your Midjourney crescent moon image
+          alt="Crescent Moon – Symbol of Midnight Blockchain"
+          width={256}
+          height={256}
+          className="rounded-full object-cover opacity-40" // Rounded for modern vibe, semi-transparent
+          priority // Optimizes for above-the-fold
+        />
+      </div>
       <Card className="w-full max-w-6xl mx-auto overflow-hidden shadow-2xl border-0 bg-gradient-to-br from-midnight-black via-gray-900 to-midnight-blue/80 backdrop-blur-sm"> {/* Enhanced card with gradient & blur */}
-        <CardHeader className="relative pb-50"> {/* Increased pb further for more space below the moon */}
-          {/* Beautiful Crescent Moon Image – Now higher and centered at top */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 -mt-20 w-64 h-64 opacity-40 z-0"> {/* Higher positioning with -mt-16 to lift above title */}
-            <Image
-              src="https://cdn.midjourney.com/6f2d84d7-d1f1-4a87-80f3-72bf87e369dc/0_0.png" // Your Midjourney crescent moon image
-              alt="Crescent Moon – Symbol of Midnight Blockchain"
-              width={256}
-              height={256}
-              className="rounded-full object-cover" // Rounded for modern vibe
-              priority // Optimizes for above-the-fold
-            />
-          </div>
-          <CardTitle className="text-4xl font-bold text-center text-white drop-shadow-lg relative z-10 mt-4"> {/* Added mt-8 to push title down below moon */}
+        <CardHeader className="relative pb-8 pt-8"> {/* Padding for space below moon, pt for top breathing */}
+          <CardTitle className="text-4xl font-bold text-center text-white drop-shadow-lg"> {/* No relative z-10 or mt needed—moon is outside */}
             {CONTRACT_CONFIG.name}
           </CardTitle>
-          <CardDescription className="text-center text-gray-300 relative z-10 mt-2"> {/* Softer text */}
+          <CardDescription className="text-center text-gray-300 mt-2"> {/* Softer text */}
             Decentralized marketplace for goods and services, secured by Sheriffs.
           </CardDescription>
         </CardHeader>
