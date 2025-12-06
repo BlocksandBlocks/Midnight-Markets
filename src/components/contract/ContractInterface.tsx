@@ -77,16 +77,16 @@ function ContractInterface() {
       transition={{ duration: 0.8 }}
       className="min-h-screen bg-gradient-to-br from-midnight-black via-gray-900 to-midnight-blue p-4" // Modern gradient background
     >
-      {/* Standalone Moon Hero – All alone above title */}
-      <div className="flex justify-center mb-12"> {/* mb-12 for generous space below moon */}
-        <div className="relative w-64 h-64"> {/* Fixed container for fill mode */}
+      {/* Standalone Moon Hero – Full-width banner style */}
+      <div className="w-full mb-12"> {/* Full width, mb-12 for space below */}
+        <div className="relative w-full h-48"> {/* Banner height for rectangular full image */}
           <Image
             src="/moon.png" // Your uploaded local image
             alt="Crescent Moon – Symbol of Midnight Blockchain"
             fill // Fills container responsively
             className="object-contain opacity-40" // Full rectangular, no cropping; object-contain shows entire image preserving aspect ratio
             priority // Loads immediately
-            sizes="256px" // Responsive sizes for perf
+            sizes="100vw" // Full viewport width for perf
           />
         </div>
       </div>
