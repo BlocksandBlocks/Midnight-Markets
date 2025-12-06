@@ -4,7 +4,7 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   experimental: {
-    // optimizePackageImports: ['lucide-react'],  // Temporarily disabled to fix JSX parsing error
+    // optimizePackageImports: ['lucide-react'],  // Temporarily disabled
   },
   // Allow remote images from Unsplash and Midjourney
   images: {
@@ -23,16 +23,22 @@ const nextConfig = {
       },
     ],
   },
-  // Configure for Midnight network integration
+  transpilePackages: ['@midnight-ntwrk/dapp-connector-api'],  // For Midnight deps
   webpack: (config) => {
+    // Your existing fallbacks
     config.resolve.fallback = {
       ...config.resolve.fallback,
       fs: false,
       net: false,
       tls: false,
-    }
-    return config
+    };
+    // Add @ alias for src
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': require('path').resolve('./src'),
+    };
+    return config;
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
