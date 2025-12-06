@@ -81,16 +81,12 @@ function ContractInterface() {
       <div className="flex justify-center mb-12"> {/* mb-12 for generous space below moon */}
         <div className="relative w-64 h-64"> {/* Fixed container for fill mode */}
           <Image
-            src="https://cdn.midjourney.com/6f2d84d7-d1f1-4a87-80f3-72bf87e369dc/0_0.png" // Your Midjourney image (or fallback to Unsplash: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=300&h=300&fit=crop")
+            src="/moon.png" // Your uploaded local image
             alt="Crescent Moon – Symbol of Midnight Blockchain"
             fill // Fills container responsively
             className="rounded-full object-cover opacity-40" // Semi-transparent, rounded
             priority // Loads immediately
             sizes="256px" // Responsive sizes for perf
-            onError={(e) => {
-              // Fallback if Midjourney fails
-              e.currentTarget.src = "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=300&h=300&fit=crop";
-            }}
           />
         </div>
       </div>
@@ -348,4 +344,14 @@ function ContractInterface() {
                       className="w-full p-3 rounded-lg bg-gray-800/70 text-white border border-gray-600 focus:border-midnight-blue focus:ring-2 focus:ring-midnight-blue/20 transition-all"
                       value={offerId}
                       onChange={(e) => setOfferId(e.target.value)}
+                      placeholder="e.g., 1001"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block text-gray-300">Sheriff ID</label>
+                    <input
+                      type="number"
+                      className="w-full p-3 rounded-lg bg-gray-800/70 text-white border border-gray-600 focus:border-midnight-blue focus:ring-2 focus:ring-midnight-blue/20 transition-all"
+                      value={sheriffId}
+                      onChange={(e) => setSheriffId(e.target.value)}
                       placeholder="e.g
