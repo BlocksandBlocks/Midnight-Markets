@@ -354,4 +354,279 @@ function ContractInterface() {
                       className="w-full p-3 rounded-lg bg-gray-800/70 text-white border border-gray-600 focus:border-midnight-blue focus:ring-2 focus:ring-midnight-blue/20 transition-all"
                       value={sheriffId}
                       onChange={(e) => setSheriffId(e.target.value)}
-                      placeholder="e.g
+                      placeholder="e.g., 101 (Your ID)"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block text-gray-300">Market ID</label>
+                    <input
+                      type="number"
+                      className="w-full p-3 rounded-lg bg-gray-800/70 text-white border border-gray-600 focus:border-midnight-blue focus:ring-2 focus:ring-midnight-blue/20 transition-all"
+                      value={marketId}
+                      onChange={(e) => setMarketId(e.target.value)}
+                      placeholder="e.g., 1"
+                    />
+                  </div>
+                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <Button
+                      onClick={() => executeFunction('release_funds', [parseInt(offerId), parseInt(sheriffId), parseInt(marketId)])}
+                      disabled={loading || !isConnected}
+                      className="w-full bg-gradient-to-r from-midnight-blue to-blue-600 hover:from-blue-600 hover:to-midnight-blue text-white shadow-lg transition-all"
+                    >
+                      {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <DollarSign className="mr-2 h-4 w-4" />}
+                      Release Funds
+                    </Button>
+                  </motion.div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Set Platform Fee Card */}
+            <motion.div
+              variants={cardVariants}
+              initial="hidden"
+              animate="visible"
+              whileHover="hover"
+              custom={4}
+              className="group"
+            >
+              <Card className="bg-gray-900/50 text-white border border-gray-700/50 backdrop-blur-sm hover:border-midnight-blue/70 transition-colors">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-xl flex items-center text-white group-hover:text-midnight-blue transition-colors">
+                    <Settings className="w-5 h-5 mr-2" /> Set Platform Fee (Owner)
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block text-gray-300">New Platform Fee (bps)</label>
+                    <input
+                      type="number"
+                      className="w-full p-3 rounded-lg bg-gray-800/70 text-white border border-gray-600 focus:border-midnight-blue focus:ring-2 focus:ring-midnight-blue/20 transition-all"
+                      value={newPlatformFee}
+                      onChange={(e) => setNewPlatformFee(e.target.value)}
+                      placeholder="e.g., 100 (for 1%)"
+                    />
+                  </div>
+                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <Button
+                      onClick={() => executeFunction('set_platform_fee', [parseInt(newPlatformFee), parseInt(currentUserId)])}
+                      disabled={loading || !isConnected}
+                      className="w-full bg-gradient-to-r from-purple-600 to-violet-600 hover:from-violet-600 hover:to-purple-600 text-white shadow-lg transition-all" // Purple for settings
+                    >
+                      {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Settings className="mr-2 h-4 w-4" />}
+                      Set Fee
+                    </Button>
+                  </motion.div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Cancel Offer (Sheriff) Card */}
+            <motion.div
+              variants={cardVariants}
+              initial="hidden"
+              animate="visible"
+              whileHover="hover"
+              custom={5}
+              className="group"
+            >
+              <Card className="bg-gray-900/50 text-white border border-gray-700/50 backdrop-blur-sm hover:border-red-500/70 transition-colors">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-xl flex items-center text-white group-hover:text-red-400 transition-colors">
+                    <XCircle className="w-5 h-5 mr-2" /> Cancel Offer (Sheriff)
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block text-gray-300">Offer ID</label>
+                    <input
+                      type="number"
+                      className="w-full p-3 rounded-lg bg-gray-800/70 text-white border border-gray-600 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all"
+                      value={offerId}
+                      onChange={(e) => setOfferId(e.target.value)}
+                      placeholder="e.g., 1001"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block text-gray-300">Sheriff ID</label>
+                    <input
+                      type="number"
+                      className="w-full p-3 rounded-lg bg-gray-800/70 text-white border border-gray-600 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all"
+                      value={sheriffId}
+                      onChange={(e) => setSheriffId(e.target.value)}
+                      placeholder="e.g., 101 (Your ID)"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block text-gray-300">Market ID</label>
+                    <input
+                      type="number"
+                      className="w-full p-3 rounded-lg bg-gray-800/70 text-white border border-gray-600 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all"
+                      value={marketId}
+                      onChange={(e) => setMarketId(e.target.value)}
+                      placeholder="e.g., 1"
+                    />
+                  </div>
+                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <Button
+                      onClick={() => executeFunction('cancel_offer_by_sheriff', [parseInt(offerId), parseInt(sheriffId), parseInt(marketId)])}
+                      disabled={loading || !isConnected}
+                      className="w-full bg-gradient-to-r from-red-600 to-rose-600 hover:from-rose-600 hover:to-red-600 text-white shadow-lg transition-all"
+                    >
+                      {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <XCircle className="mr-2 h-4 w-4" />}
+                      Cancel Offer
+                    </Button>
+                  </motion.div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Cancel Offer (Seller) Card – Span full width on md+ */}
+            <motion.div
+              variants={cardVariants}
+              initial="hidden"
+              animate="visible"
+              whileHover="hover"
+              custom={6}
+              className="md:col-span-2 group"
+            >
+              <Card className="bg-gray-900/50 text-white border border-gray-700/50 backdrop-blur-sm hover:border-red-500/70 transition-colors">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-xl flex items-center text-white group-hover:text-red-400 transition-colors">
+                    <XCircle className="w-5 h-5 mr-2" /> Cancel Offer (Seller)
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4"> {/* Sub-grid for better layout */}
+                    <div>
+                      <label className="text-sm font-medium mb-2 block text-gray-300">Offer ID</label>
+                      <input
+                        type="number"
+                        className="w-full p-3 rounded-lg bg-gray-800/70 text-white border border-gray-600 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all"
+                        value={offerId}
+                        onChange={(e) => setOfferId(e.target.value)}
+                        placeholder="e.g., 1001"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-2 block text-gray-300">Seller ID</label>
+                      <input
+                        type="number"
+                        className="w-full p-3 rounded-lg bg-gray-800/70 text-white border border-gray-600 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all"
+                        value={sellerId}
+                        onChange={(e) => setSellerId(e.target.value)}
+                        placeholder="e.g., 201 (Your ID)"
+                      />
+                    </div>
+                  </div>
+                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <Button
+                      onClick={() => executeFunction('cancel_offer_by_seller', [parseInt(offerId), parseInt(sellerId)])}
+                      disabled={loading || !isConnected}
+                      className="w-full bg-gradient-to-r from-red-600 to-rose-600 hover:from-rose-600 hover:to-red-600 text-white shadow-lg transition-all"
+                    >
+                      {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <XCircle className="mr-2 h-4 w-4" />}
+                      Cancel Offer
+                    </Button>
+                  </motion.div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Submit Proof Card – Span full width */}
+            <motion.div
+              variants={cardVariants}
+              initial="hidden"
+              animate="visible"
+              whileHover="hover"
+              custom={7}
+              className="md:col-span-2 group"
+            >
+              <Card className="bg-gray-900/50 text-white border border-gray-700/50 backdrop-blur-sm hover:border-midnight-blue/70 transition-colors">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-xl flex items-center text-white group-hover:text-midnight-blue transition-colors">
+                    <Handshake className="w-5 h-5 mr-2" /> Submit Proof
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="text-sm font-medium mb-2 block text-gray-300">Offer ID</label>
+                      <input
+                        type="number"
+                        className="w-full p-3 rounded-lg bg-gray-800/70 text-white border border-gray-600 focus:border-midnight-blue focus:ring-2 focus:ring-midnight-blue/20 transition-all"
+                        value={offerId}
+                        onChange={(e) => setOfferId(e.target.value)}
+                        placeholder="e.g., 1001"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-2 block text-gray-300">Seller ID</label>
+                      <input
+                        type="number"
+                        className="w-full p-3 rounded-lg bg-gray-800/70 text-white border border-gray-600 focus:border-midnight-blue focus:ring-2 focus:ring-midnight-blue/20 transition-all"
+                        value={sellerId}
+                        onChange={(e) => setSellerId(e.target.value)}
+                        placeholder="e.g., 201 (Your ID)"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-2 block text-gray-300">Proof Hash</label>
+                      <input
+                        type="text"
+                        className="w-full p-3 rounded-lg bg-gray-800/70 text-white border border-gray-600 focus:border-midnight-blue focus:ring-2 focus:ring-midnight-blue/20 transition-all"
+                        value={proofHash}
+                        onChange={(e) => setProofHash(e.target.value)}
+                        placeholder="e.g., 0xdef456..."
+                      />
+                    </div>
+                  </div>
+                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <Button
+                      onClick={() => executeFunction('submit_proof', [parseInt(offerId), parseInt(sellerId), proofHash])}
+                      disabled={loading || !isConnected}
+                      className="w-full bg-gradient-to-r from-midnight-blue to-blue-600 hover:from-blue-600 hover:to-midnight-blue text-white shadow-lg transition-all"
+                    >
+                      {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Handshake className="mr-2 h-4 w-4" />}
+                      Submit Proof
+                    </Button>
+                  </motion.div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+
+          {/* Contract State Display – Enhanced footer card */}
+          <motion.div
+            variants={cardVariants}
+            initial="hidden"
+            animate="visible"
+            custom={8}
+            className="group"
+          >
+            <Card className="bg-gray-900/50 text-white border border-gray-700/50 backdrop-blur-sm hover:border-midnight-blue/70 transition-colors">
+              <CardHeader>
+                <CardTitle className="text-xl text-white">Contract State</CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="space-y-3 text-sm"> {/* Better spacing */}
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Owner ID:</span>
+                    <Badge variant="secondary" className="bg-midnight-blue/20 text-midnight-blue">{contractState.owner_id}</Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Platform Fee:</span>
+                    <Badge variant="secondary" className="bg-green-500/20 text-green-400">{contractState.platform_fee_percentage / 100}%</Badge>
+                  </div>
+                  {/* Add more state badges as needed */}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+}
+
+export { ContractInterface }
