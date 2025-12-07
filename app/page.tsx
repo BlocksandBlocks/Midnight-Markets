@@ -7,7 +7,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-midnight-black text-midnight-white flex flex-col items-center p-4">
       <header className="w-full max-w-4xl flex justify-between items-center py-4">
-        <h1 className="text-4xl font-bold text-midnight-blue">Midnight Markets</h1> 
+        <h1 className="text-4xl font-bold text-midnight-blue">Night Mode</h1> 
         <div className="flex items-center space-x-4">
           <NetworkStatus />
           <WalletConnect />
