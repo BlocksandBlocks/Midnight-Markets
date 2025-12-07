@@ -96,7 +96,8 @@ function ContractInterface() {
             Night Mode
           </CardTitle>
           <CardDescription className="text-center text-gray-300 mt-2"> {/* Softer text */}
-            Your day job sucks.  Your night job can be better. Decentralized marketplace for goods and services, secured by Sheriffs.
+            Your day job sucks.  Your night job can be better. <br />
+            Decentralized marketplace for goods and services, secured by Sheriffs.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-8 p-8">
