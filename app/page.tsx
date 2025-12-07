@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link'; // Add this for navigation
+import Link from 'next/link'; // For navigation
 import { Button } from '@/components/ui/button';
 import { WalletConnect } from '@/components/wallet/WalletConnect';
 import { NetworkStatus } from '@/components/network/NetworkStatus';
@@ -20,14 +20,14 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Hero Moon Banner */}
+      {/* Hero Moon Banner – Full Rectangular */}
       <div className="w-full mb-12">
-        <div className="relative w-full h-48">
+        <div className="relative w-full h-64"> {/* Taller for full rectangular view */}
           <Image
             src="/moon.png"
             alt="Crescent Moon – Symbol of Night Mode"
             fill
-            className="object-cover opacity-40"
+            className="object-contain opacity-40" // Full image without cropping; contain preserves aspect
             priority
             sizes="100vw"
           />
