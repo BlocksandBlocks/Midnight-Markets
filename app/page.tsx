@@ -20,16 +20,16 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Hero Moon Banner – Full Rectangular */}
-      <div className="w-full mb-12">
-        <div className="relative w-full h-64"> {/* Taller for full rectangular view */}
+      {/* Hero Moon Banner – Full-width rectangular */}
+      <div className="w-full mb-12"> {/* Full width, mb-12 for space below */}
+        <div className="relative w-full h-48"> {/* Banner height for rectangular full image */}
           <Image
-            src="/moon.png"
+            src="/moon.png" // Your uploaded local image
             alt="Crescent Moon – Symbol of Night Mode"
-            fill
-            className="object-contain opacity-40" // Full image without cropping; contain preserves aspect
-            priority
-            sizes="100vw"
+            fill // Fills container responsively
+            className="object-contain opacity-40" // Full rectangular, no cropping; object-contain shows entire image preserving aspect ratio
+            priority // Loads immediately
+            sizes="100vw" // Full viewport width for perf
           />
         </div>
       </div>
