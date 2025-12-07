@@ -60,9 +60,10 @@ interface Market {
   offers: Array<{ id: number; seller: string; amount: number; title: string }>;
 }
 
-export default function MarketPage({ params }: { params: { id: string } }) {
-  const id = parseInt(params.id);
-  const market = markets.find((m) => m.id === id) as Market;
+export default async function MarketPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const marketId = parseInt(id);
+  const market = markets.find((m) => m.id === marketId) as Market;
 
   if (!market) {
     notFound(); // Next.js 404 if market not found
@@ -72,7 +73,7 @@ export default function MarketPage({ params }: { params: { id: string } }) {
     <div className="min-h-screen bg-gradient-to-br from-midnight-black via-gray-900 to-midnight-blue flex flex-col p-4">
       {/* Header */}
       <header className="w-full max-w-6xl mx-auto flex justify-between items-center py-4">
-        <Link href="/" className="text-xl font-bold text-midnight-blue hover:underline">
+        <Link href="/markets" className="text-xl font-bold text-midnight-blue hover:underline">
           ← Back to Markets
         </Link>
         <div className="flex items-center space-x-4">
