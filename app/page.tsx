@@ -62,9 +62,11 @@ export default function Home() {
               Browse Markets
             </Button>
           </Link>
-          <Button size="lg" variant="outline" className="w-full md:w-auto border-midnight-blue text-midnight-blue hover:bg-midnight-blue hover:text-white">
-            Create a Market (Become Sheriff)
-          </Button>
+          <Link href="/create-market">
+            <Button size="lg" variant="outline" className="w-full md:w-auto border-midnight-blue text-midnight-blue hover:bg-midnight-blue hover:text-white">
+              Create a Market (Become Sheriff)
+            </Button>
+          </Link>
         </div>
 
         {/* Instruction Text Below Buttons */}
