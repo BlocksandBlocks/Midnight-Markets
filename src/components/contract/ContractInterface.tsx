@@ -92,8 +92,8 @@ function ContractInterface() {
       </div>
       <Card className="w-full max-w-6xl mx-auto overflow-hidden shadow-2xl border-0 bg-gradient-to-br from-midnight-black via-gray-900 to-midnight-blue/80 backdrop-blur-sm"> {/* Enhanced card with gradient & blur */}
         <CardHeader className="relative pb-8 pt-0"> {/* No pt needed—moon is outside; pb-8 for title space */}
-          <CardTitle className="text-4xl font-bold text-center text-white drop-shadow-lg"> {/* Title now clear below moon */}
-            {CONTRACT_CONFIG.name}
+          <CardTitle className="text-4xl font-bold text-center text-white drop-shadow-lg">
+            Night Mode
           </CardTitle>
           <CardDescription className="text-center text-gray-300 mt-2"> {/* Softer text */}
             Decentralized marketplace for goods and services, secured by Sheriffs.
