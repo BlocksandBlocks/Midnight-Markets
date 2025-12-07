@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link'; // Add this for navigation
 import { Button } from '@/components/ui/button';
 import { WalletConnect } from '@/components/wallet/WalletConnect';
 import { NetworkStatus } from '@/components/network/NetworkStatus';
@@ -56,9 +57,11 @@ export default function Home() {
 
         {/* Single Row of Prominent Buttons */}
         <div className="flex flex-col md:flex-row gap-4 mb-8">
-          <Button size="lg" className="w-full md:w-auto bg-gradient-to-r from-midnight-blue to-blue-600 text-white shadow-lg">
-            Browse Markets
-          </Button>
+          <Link href="/markets">
+            <Button size="lg" className="w-full md:w-auto bg-gradient-to-r from-midnight-blue to-blue-600 text-white shadow-lg">
+              Browse Markets
+            </Button>
+          </Link>
           <Button size="lg" variant="outline" className="w-full md:w-auto border-midnight-blue text-midnight-blue hover:bg-midnight-blue hover:text-white">
             Create a Market (Become Sheriff)
           </Button>
