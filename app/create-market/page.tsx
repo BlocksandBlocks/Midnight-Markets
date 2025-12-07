@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation'; // For redirect after success
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'; // Added CardDescription to import
 import { WalletConnect } from '@/components/wallet/WalletConnect';
 import { NetworkStatus } from '@/components/network/NetworkStatus';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
