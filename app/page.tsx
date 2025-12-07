@@ -20,7 +20,7 @@ export default function Home() {
       </main>
 
       <footer className="w-full max-w-4xl text-center py-4 text-gray-500 text-sm">
-        © 2024 Midnight Markets. All rights reserved.
+        © 2025 Night Mode. All rights reserved.
       </footer>
     </div>
   );
