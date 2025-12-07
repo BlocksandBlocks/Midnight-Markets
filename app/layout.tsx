@@ -5,16 +5,15 @@ import './globals.css'
 
 const outfit = Outfit({ 
   subsets: ['latin'],
-  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'], 
+  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
   variable: '--font-outfit',
 })
 
 export const metadata: Metadata = {
   title: 'Night Mode | Privacy-Preserving Smart Contracts',
-  description: 'Decentralized marketplace for goods and services on the Midnight blockchain.',
+  description: 'Decentralized marketplace for goods and services on the Midnight blockchain',
   keywords: ['Night Mode', 'Compact', 'Privacy', 'Smart Contracts', 'Blockchain', 'DApp'],
   authors: [{ name: 'AOS Labs' }],
-};
 }
 
 export const viewport: Viewport = {
