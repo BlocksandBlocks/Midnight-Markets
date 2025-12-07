@@ -55,7 +55,7 @@ function WalletConnect() {
       ) : (
         <>
           <Wallet className="h-4 w-4" />
-          <span className="text-xs">Connect Midnight</span>
+          <span className="text-xs">Connect Wallet</span>
         </>
       )}
     </Button>
