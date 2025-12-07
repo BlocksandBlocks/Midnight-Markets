@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { WalletConnect } from '@/components/wallet/WalletConnect';
 import { NetworkStatus } from '@/components/network/NetworkStatus';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
+import Link from 'next/link';
 
 export default function Home() {
   return (
@@ -63,6 +64,12 @@ export default function Home() {
             Create a Market (Become Sheriff)
           </Button>
         </div>
+
+        <Link href="/markets">
+          <Button size="lg" className="w-full md:w-auto bg-gradient-to-r from-midnight-blue to-blue-600 text-white shadow-lg">
+          Browse Markets
+          </Button>
+        </Link>
 
         <p className="text-gray-500 text-sm">
           Don't see the market you need? Create one and become its Sheriff to earn fees.
