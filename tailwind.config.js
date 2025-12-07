@@ -24,7 +24,7 @@ const config = {
         midnight: {
           black: '#0A0A0A',
           white: '#FFFFFF',
-          blue: '#0000FE',
+          blue: '#1e1e3f',
         },
         // UI colors
         border: 'hsl(var(--border))',
