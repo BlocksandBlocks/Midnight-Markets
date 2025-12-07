@@ -10,10 +10,11 @@ const outfit = Outfit({
 })
 
 export const metadata: Metadata = {
-  title: 'Compact Frontend Scaffold | Midnight',
-  description: 'Privacy-preserving smart contracts on Midnight blockchain',
-  keywords: ['Midnight', 'Compact', 'Privacy', 'Smart Contracts', 'Blockchain', 'DApp'],
-  authors: [{ name: 'Midnight Labs' }],
+  title: 'Night Mode | Privacy-Preserving Smart Contracts',
+  description: 'Decentralized marketplace for goods and services on the Midnight blockchain.',
+  keywords: ['Night Mode', 'Compact', 'Privacy', 'Smart Contracts', 'Blockchain', 'DApp'],
+  authors: [{ name: 'AOS Labs' }],
+};
 }
 
 export const viewport: Viewport = {
