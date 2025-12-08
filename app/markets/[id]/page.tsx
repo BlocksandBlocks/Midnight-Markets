@@ -109,7 +109,7 @@ export default async function MarketPage({ params }: { params: Promise<{ id: str
             Post Offer
           </Button>
         </Link>
-        <Link href={`/markets/${marketId}/accept-offer`}> {/* Added Link for Accept */}
+        <Link href={`/markets/${marketId}/accept-offer`}>
           <Button size="lg" variant="outline" className="w-full md:w-auto border-midnight-blue text-midnight-blue hover:bg-midnight-blue hover:text-white">
             Accept Offer
           </Button>
@@ -122,7 +122,7 @@ export default async function MarketPage({ params }: { params: Promise<{ id: str
           </Button>
       </div>
       
-      {/* Offers List */}
+     {/* Offers List */}
       <main className="flex-grow w-full max-w-6xl grid grid-cols-1 gap-6 pb-8">
         <h2 className="text-2xl font-bold text-white col-span-full">Active Offers</h2>
         {market.offers.map((offer) => (
@@ -135,7 +135,9 @@ export default async function MarketPage({ params }: { params: Promise<{ id: str
             </CardHeader>
             <CardContent className="pt-0">
               <div className="flex justify-end space-x-2">
-                <Button variant="outline" size="sm">Accept</Button>
+                <Link href={`/markets/${marketId}/accept-offer?offerId=${offer.id}`}>
+                  <Button variant="outline" size="sm">Accept</Button>
+                </Link>
                 <Button variant="destructive" size="sm">Cancel</Button>
               </div>
             </CardContent>
