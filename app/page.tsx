@@ -12,7 +12,7 @@ export default function Home() {
     <div className="min-h-screen bg-midnight-black flex flex-col items-center p-4"> {/* Removed gradient; solid midnight-black for cleaner look */}
       {/* Header */}
       <header className="w-full max-w-6xl flex justify-between items-center py-4">
-        <h1 className="text-4xl font-bold text-midnight-blue">Night Mode</h1>
+        <h1 className="text-4xl font-bold text-white drop-shadow-lg">Night Mode</h1> {/* Brighter white with shadow for visibility */}
         <div className="flex items-center space-x-4">
           <NetworkStatus />
           <WalletConnect />
@@ -63,7 +63,7 @@ export default function Home() {
             </Button>
           </Link>
           <Link href="/create-market">
-            <Button size="lg" variant="outline" className="w-full md:w-auto border-midnight-blue text-midnight-blue hover:bg-midnight-blue hover:text-white">
+            <Button size="lg" className="w-full md:w-auto bg-gradient-to-r from-midnight-blue to-blue-600 text-white shadow-lg"> {/* Solid gradient like Browse */}
               Create a Market (Become Sheriff)
             </Button>
           </Link>
