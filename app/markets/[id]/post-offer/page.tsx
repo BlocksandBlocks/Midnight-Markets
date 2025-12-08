@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation'; // For redirect and params
+import { useRouter } from 'next/navigation'; // For redirect
+import { useParams, useSearchParams } from 'next/navigation'; // For marketId and query params
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -13,47 +14,24 @@ import { contractService } from '@/lib/CONTRACT_SERVICE';
 import { toast } from 'sonner';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation'; // For getting marketId
 
-// Mock markets data (duplicated for this page—shared later if needed)
+// Mock markets for back link lookup
 const markets = [
-  {
-    id: 1,
-    name: 'Electronics',
-    sheriff: 'SheriffTechPro',
-    description: 'Gadgets, phones, laptops—tech deals secured.',
-    offersCount: 15,
-    image: '/moon.png',
-  },
-  {
-    id: 2,
-    name: 'Freelance Services',
-    sheriff: 'SheriffGigMaster',
-    description: 'Design, writing, coding—hire talent privately.',
-    offersCount: 28,
-    image: '/moon.png',
-  },
-  {
-    id: 3,
-    name: 'Art & Collectibles',
-    sheriff: 'SheriffArtGuard',
-    description: 'Digital art, NFTs, rarities—creative trades.',
-    offersCount: 9,
-    image: '/moon.png',
-  },
+  { id: 1, name: 'Electronics' },
+  { id: 2, name: 'Freelance Services' },
+  { id: 3, name: 'Art & Collectibles' },
 ];
 
-export default function PostOffer() {
+export default function CancelOffer() {
   const router = useRouter();
-  const params = useParams(); // Gets { id } from /markets/[id]/post-offer
+  const params = useParams();
+  const searchParams = useSearchParams(); // Reads ?offerId from URL
   const marketId = parseInt(params.id as string);
   const market = markets.find((m) => m.id === marketId);
   const { isConnected } = useWalletStore();
   const [loading, setLoading] = useState(false);
-  const [offerId, setOfferId] = useState('');
+  const [offerId, setOfferId] = useState(searchParams.get('offerId') || ''); // Autofill from query param
   const [sellerId, setSellerId] = useState('');
-  const [amount, setAmount] = useState('');
-  const [offerDetailsHash, setOfferDetailsHash] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,28 +41,25 @@ export default function PostOffer() {
     }
     setLoading(true);
     try {
-      const result = await contractService.callFunction('post_offer', [
+      const result = await contractService.callFunction('cancel_offer_by_seller', [
         parseInt(offerId),
-        marketId, // From params
         parseInt(sellerId),
-        parseInt(amount),
-        offerDetailsHash,
       ]);
       if (result.success) {
-        toast.success(result.message || 'Offer posted successfully!');
-        router.push(`/markets/${marketId}`); // Back to market page
+        toast.success(result.message || 'Offer canceled successfully!');
+        router.push(`/markets/${marketId}`);
       } else {
-        toast.error(result.message || 'Failed to post offer');
+        toast.error(result.message || 'Failed to cancel offer');
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Post failed');
+      toast.error(error instanceof Error ? error.message : 'Cancel failed');
     } finally {
       setLoading(false);
     }
   };
 
   if (!market) {
-    return <div>Market not found</div>; // Fallback if invalid ID
+    return <div>Market not found</div>;
   }
 
   return (
@@ -106,20 +81,20 @@ export default function PostOffer() {
       <main className="flex-grow flex flex-col justify-center items-center w-full max-w-md py-8">
         <Card className="w-full bg-gray-900/50 text-white border border-gray-700/50 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle className="text-2xl text-center">Post an Offer</CardTitle>
+            <CardTitle className="text-2xl text-center">Cancel an Offer</CardTitle>
             <CardDescription className="text-center">
-              Offer your goods or services in {market.name}. Connect wallet to post.
+              Cancel your offer in {market.name}. Connect wallet to cancel.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="text-sm font-medium mb-2 block text-gray-300">Offer ID</label>
+                <label className="text-sm font-medium mb-2 block text-gray-300">Offer ID {offerId ? `(Pre-filled: ${offerId})` : ''}</label>
                 <Input
                   type="number"
                   value={offerId}
                   onChange={(e) => setOfferId(e.target.value)}
-                  placeholder="e.g., 1001"
+                  placeholder="e.g., 101"
                   disabled={loading}
                   required
                 />
@@ -135,40 +110,18 @@ export default function PostOffer() {
                   required
                 />
               </div>
-              <div>
-                <label className="text-sm font-medium mb-2 block text-gray-300">Amount ($Night)</label>
-                <Input
-                  type="number"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  placeholder="e.g., 1000"
-                  disabled={loading}
-                  required
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-2 block text-gray-300">Offer Details Hash</label>
-                <Input
-                  type="text"
-                  value={offerDetailsHash}
-                  onChange={(e) => setOfferDetailsHash(e.target.value)}
-                  placeholder="e.g., 0xabc123..."
-                  disabled={loading}
-                  required
-                />
-              </div>
               <Button
                 type="submit"
                 disabled={loading || !isConnected}
-                className="w-full bg-gradient-to-r from-midnight-blue to-blue-600 text-white shadow-lg"
+                className="w-full bg-red-600 hover:bg-red-700 text-white shadow-lg"
               >
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Posting...
+                    Canceling...
                   </>
                 ) : (
-                  'Post Offer'
+                  'Cancel Offer'
                 )}
               </Button>
             </form>
