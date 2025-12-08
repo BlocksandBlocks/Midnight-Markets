@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation'; // For redirect
 import { useParams, useSearchParams } from 'next/navigation'; // For marketId and query params
 import { Button } from '@/components/ui/button';
@@ -28,11 +28,18 @@ export default function SubmitProof() {
   const searchParams = useSearchParams(); // Reads ?offerId from URL
   const marketId = parseInt(params.id as string);
   const market = markets.find((m) => m.id === marketId);
-  const { isConnected } = useWalletStore();
+  const { isConnected, walletState } = useWalletStore();
   const [loading, setLoading] = useState(false);
   const [offerId, setOfferId] = useState(searchParams.get('offerId') || ''); // Autofill from query param
   const [sellerId, setSellerId] = useState('');
   const [proofHash, setProofHash] = useState('');
+
+  // Auto-populate Seller ID on mount
+useEffect(() => {
+  if (walletState?.address) {
+    setSellerId(walletState.address.slice(-6)); // Mock short ID from address (real: parse or use full)
+  }
+}, [walletState]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,13 +109,13 @@ export default function SubmitProof() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block text-gray-300">Seller ID (Your ID)</label>
+                <label className="text-sm font-medium mb-2 block text-gray-300">Seller ID (Auto: {sellerId || 'Connect Wallet'})</label>
                 <Input
                   type="number"
                   value={sellerId}
                   onChange={(e) => setSellerId(e.target.value)}
                   placeholder="e.g., 201"
-                  disabled={loading}
+                  disabled // Read-only after auto-fill
                   required
                 />
               </div>
