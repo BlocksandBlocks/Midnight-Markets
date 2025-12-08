@@ -22,7 +22,7 @@ export default function Home() {
 
       {/* Hero Moon Banner – Full-width rectangular */}
       <div className="w-full mb-12"> {/* Full width, mb-12 for space below */}
-        <div className="relative w-full h-full"> {/* Taller banner to show full image without cropping */}
+        <div className="relative w-full h-80"> {/* Taller banner to show full image without cropping */}
           <Image
             src="/moon.png" // Your uploaded local image
             alt="Crescent Moon – Symbol of Night Mode"
