@@ -109,17 +109,19 @@ export default async function MarketPage({ params }: { params: Promise<{ id: str
             Post Offer
           </Button>
         </Link>
-        <Button size="lg" variant="outline" className="w-full md:w-auto border-midnight-blue text-midnight-blue hover:bg-midnight-blue hover:text-white">
-          Accept Offer
-        </Button>
-        <Button size="lg" variant="destructive" className="w-full md:w-auto bg-red-600 hover:bg-red-700 text-white">
-          Cancel Offer
-        </Button>
-        <Button size="lg" variant="secondary" className="w-full md:w-auto bg-purple-600 hover:bg-purple-700 text-white">
-          Submit Proof
-        </Button>
+        <Link href={`/markets/${marketId}/accept-offer`}> {/* Added Link for Accept */}
+          <Button size="lg" variant="outline" className="w-full md:w-auto border-midnight-blue text-midnight-blue hover:bg-midnight-blue hover:text-white">
+            Accept Offer
+          </Button>
+        </Link>
+          <Button size="lg" variant="destructive" className="w-full md:w-auto bg-red-600 hover:bg-red-700 text-white">
+            Cancel Offer
+          </Button>
+          <Button size="lg" variant="secondary" className="w-full md:w-auto bg-purple-600 hover:bg-purple-700 text-white">
+            Submit Proof
+          </Button>
       </div>
-
+      
       {/* Offers List */}
       <main className="flex-grow w-full max-w-6xl grid grid-cols-1 gap-6 pb-8">
         <h2 className="text-2xl font-bold text-white col-span-full">Active Offers</h2>
