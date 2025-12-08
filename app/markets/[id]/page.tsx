@@ -102,27 +102,22 @@ export default async function MarketPage({ params }: { params: Promise<{ id: str
         </div>
       </div>
 
-      {/* Action Buttons */}
+      {/* Action Buttons – Removed Accept */}
       <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row gap-4 mb-8 justify-center">
         <Link href={`/markets/${marketId}/post-offer`}>
           <Button size="lg" className="w-full md:w-auto bg-gradient-to-r from-midnight-blue to-blue-600 text-white shadow-lg">
             Post Offer
           </Button>
         </Link>
-        <Link href={`/markets/${marketId}/accept-offer`}>
-          <Button size="lg" variant="outline" className="w-full md:w-auto border-midnight-blue text-midnight-blue hover:bg-midnight-blue hover:text-white">
-            Accept Offer
-          </Button>
-        </Link>
-          <Button size="lg" variant="destructive" className="w-full md:w-auto bg-red-600 hover:bg-red-700 text-white">
-            Cancel Offer
-          </Button>
-          <Button size="lg" variant="secondary" className="w-full md:w-auto bg-purple-600 hover:bg-purple-700 text-white">
-            Submit Proof
-          </Button>
+        <Button size="lg" variant="destructive" className="w-full md:w-auto bg-red-600 hover:bg-red-700 text-white">
+          Cancel Offer
+        </Button>
+        <Button size="lg" variant="secondary" className="w-full md:w-auto bg-purple-600 hover:bg-purple-700 text-white">
+          Submit Proof
+        </Button>
       </div>
-      
-     {/* Offers List */}
+
+      {/* Offers List */}
       <main className="flex-grow w-full max-w-6xl grid grid-cols-1 gap-6 pb-8">
         <h2 className="text-2xl font-bold text-white col-span-full">Active Offers</h2>
         {market.offers.map((offer) => (
