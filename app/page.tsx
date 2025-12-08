@@ -9,7 +9,7 @@ import { ThemeToggle } from '@/components/theme/theme-toggle';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-midnight-black via-gray-900 to-midnight-blue flex flex-col items-center p-4">
+    <div className="min-h-screen bg-midnight-black flex flex-col items-center p-4"> {/* Removed gradient; solid midnight-black for cleaner look */}
       {/* Header */}
       <header className="w-full max-w-6xl flex justify-between items-center py-4">
         <h1 className="text-4xl font-bold text-midnight-blue">Night Mode</h1>
@@ -20,14 +20,14 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Hero Moon Banner – Full-width rectangular, no cropping */}
+      {/* Hero Moon Banner – Full-width rectangular */}
       <div className="w-full mb-12"> {/* Full width, mb-12 for space below */}
-        <div className="relative w-full h-[500px]"> {/* Taller height to show full image without cropping */}
+        <div className="relative w-full h-80"> {/* Taller banner to show full image without cropping */}
           <Image
             src="/moon.png" // Your uploaded local image
             alt="Crescent Moon – Symbol of Night Mode"
             fill // Fills container responsively
-            className="object-contain opacity-40" // Full rectangular, no cropping; contain shows entire image preserving aspect ratio
+            className="object-contain opacity-60" // Increased opacity for better visibility; full rectangular no cropping
             priority // Loads immediately
             sizes="100vw" // Full viewport width for perf
           />
