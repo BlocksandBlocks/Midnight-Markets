@@ -31,15 +31,16 @@ export default function CancelOffer() {
   const { isConnected, walletState } = useWalletStore();
   const [loading, setLoading] = useState(false);
   const [offerId, setOfferId] = useState(searchParams.get('offerId') || ''); // Autofill from query param
-  const [sellerId, setSellerId] = useState('');
   const [sellerId, setSellerId] = useState(''); // Auto from wallet
 
   // Auto-populate Seller ID on mount
-  useEffect(() => {
-    if (walletState?.address) {
-      setSellerId(walletState.address.slice(-6)); // Mock short ID from address (real: parse or use full)
-    }
-  }, [walletState]);
+useEffect(() => {
+  if (walletState?.address) {
+    setSellerId(walletState.address.slice(-6)); // Wallet priority
+  } else if (searchParams.get('sellerId')) {
+    setSellerId(searchParams.get('sellerId') || ''); // Fallback to param
+  }
+}, [walletState, searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
