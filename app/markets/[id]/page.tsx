@@ -10,7 +10,7 @@ import { WalletConnect } from '@/components/wallet/WalletConnect';
 import { NetworkStatus } from '@/components/network/NetworkStatus';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
 
-// Mock markets data (same as Browse page—fetch real from API later)
+// Mock markets data (same as /markets page—fetch real from API later)
 const markets = [
   {
     id: 1,
@@ -22,7 +22,6 @@ const markets = [
     offers: [
       { id: 101, seller: 'UserA', amount: 500, title: 'iPhone 15 Pro' },
       { id: 102, seller: 'UserB', amount: 200, title: 'Wireless Headphones' },
-      // Add more mocks
     ],
   },
   {
@@ -60,7 +59,7 @@ interface Market {
   offers: Array<{ id: number; seller: string; amount: number; title: string }>;
 }
 
-export default async function MarketPage({ params }: { params: Promise<{ id: string }> }) {
+export default function MarketPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const marketId = parseInt(id);
   const market = markets.find((m) => m.id === marketId) as Market;
