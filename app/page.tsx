@@ -39,7 +39,7 @@ export default function Home() {
         {/* Hook Title */}
         <h2 className="text-2xl font-bold text-white mb-4">Your day job sucks. Your night job can be better.</h2>
         <p className="text-gray-300 mb-8 leading-relaxed">
-          Night Mode is a world of decentralized marketplaces run by Sheriffs. Create any market.  Be the Sheriff.  Trade anything that's legal.
+          Night Mode is a world of decentralized marketplaces run by Sheriffs. Create any market.  Be the Sheriff.  Trade everything.
         </p>
 
         {/* How It Works */}
