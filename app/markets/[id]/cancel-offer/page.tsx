@@ -65,4 +65,74 @@ export default function CancelOffer() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-midnight-black via-gray-900 to-midnight-blue flex flex-col p-4">
       {/* Header */}
-      <header className="w-full max-w-4xl mx-auto flex justify-between
+      <header className="w-full max-w-4xl mx-auto flex justify-between items-center py-4">
+        <Link href={`/markets/${marketId}`} className="text-xl font-bold text-midnight-blue hover:underline flex items-center gap-2">
+          <ArrowLeft className="w-4 h-4" />
+          Back to {market.name}
+        </Link>
+        <div className="flex items-center space-x-4">
+          <NetworkStatus />
+          <WalletConnect />
+          <ThemeToggle />
+        </div>
+      </header>
+
+      {/* Form Card */}
+      <main className="flex-grow flex flex-col justify-center items-center w-full max-w-md py-8">
+        <Card className="w-full bg-gray-900/50 text-white border border-gray-700/50 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle className="text-2xl text-center">Cancel an Offer</CardTitle>
+            <CardDescription className="text-center">
+              Cancel your offer in {market.name}. Connect wallet to cancel.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block text-gray-300">Offer ID {offerId ? `(Pre-filled: ${offerId})` : ''}</label>
+                <Input
+                  type="number"
+                  value={offerId}
+                  onChange={(e) => setOfferId(e.target.value)}
+                  placeholder="e.g., 101"
+                  disabled={loading}
+                  required
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block text-gray-300">Seller ID (Your ID)</label>
+                <Input
+                  type="number"
+                  value={sellerId}
+                  onChange={(e) => setSellerId(e.target.value)}
+                  placeholder="e.g., 201"
+                  disabled={loading}
+                  required
+                />
+              </div>
+              <Button
+                type="submit"
+                disabled={loading || !isConnected}
+                className="w-full bg-red-600 hover:bg-red-700 text-white shadow-lg"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Canceling...
+                  </>
+                ) : (
+                  'Cancel Offer'
+                )}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </main>
+
+      {/* Footer */}
+      <footer className="w-full max-w-4xl text-center py-4 text-gray-500 text-sm">
+        © 2024 Night Mode. All rights reserved.
+      </footer>
+    </div>
+  );
+}
