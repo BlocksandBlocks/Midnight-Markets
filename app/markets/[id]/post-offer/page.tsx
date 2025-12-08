@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter, useParams } from 'next/navigation'; // For redirect and params
+import { useRouter } from 'next/navigation'; // For redirect and params
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -13,11 +13,41 @@ import { contractService } from '@/lib/CONTRACT_SERVICE';
 import { toast } from 'sonner';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import { useParams } from 'next/navigation'; // For getting marketId
+
+// Mock markets data (duplicated for this page—shared later if needed)
+const markets = [
+  {
+    id: 1,
+    name: 'Electronics',
+    sheriff: 'SheriffTechPro',
+    description: 'Gadgets, phones, laptops—tech deals secured.',
+    offersCount: 15,
+    image: '/moon.png',
+  },
+  {
+    id: 2,
+    name: 'Freelance Services',
+    sheriff: 'SheriffGigMaster',
+    description: 'Design, writing, coding—hire talent privately.',
+    offersCount: 28,
+    image: '/moon.png',
+  },
+  {
+    id: 3,
+    name: 'Art & Collectibles',
+    sheriff: 'SheriffArtGuard',
+    description: 'Digital art, NFTs, rarities—creative trades.',
+    offersCount: 9,
+    image: '/moon.png',
+  },
+];
 
 export default function PostOffer() {
   const router = useRouter();
   const params = useParams(); // Gets { id } from /markets/[id]/post-offer
   const marketId = parseInt(params.id as string);
+  const market = markets.find((m) => m.id === marketId);
   const { isConnected } = useWalletStore();
   const [loading, setLoading] = useState(false);
   const [offerId, setOfferId] = useState('');
@@ -53,13 +83,17 @@ export default function PostOffer() {
     }
   };
 
+  if (!market) {
+    return <div>Market not found</div>; // Fallback if invalid ID
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-midnight-black via-gray-900 to-midnight-blue flex flex-col p-4">
       {/* Header */}
       <header className="w-full max-w-4xl mx-auto flex justify-between items-center py-4">
         <Link href={`/markets/${marketId}`} className="text-xl font-bold text-midnight-blue hover:underline flex items-center gap-2">
           <ArrowLeft className="w-4 h-4" />
-          Back to {markets.find(m => m.id === marketId)?.name}
+          Back to {market.name}
         </Link>
         <div className="flex items-center space-x-4">
           <NetworkStatus />
@@ -74,7 +108,7 @@ export default function PostOffer() {
           <CardHeader>
             <CardTitle className="text-2xl text-center">Post an Offer</CardTitle>
             <CardDescription className="text-center">
-              Offer your goods or services in this market. Connect wallet to post.
+              Offer your goods or services in {market.name}. Connect wallet to post.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
