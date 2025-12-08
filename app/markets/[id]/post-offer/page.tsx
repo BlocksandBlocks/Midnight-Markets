@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'; // Ensure useEffect is included
 import { useRouter } from 'next/navigation'; // For redirect
 import { useParams } from 'next/navigation'; // For marketId
 import { Button } from '@/components/ui/button';
@@ -29,7 +29,7 @@ export default function PostOffer() {
   const market = markets.find((m) => m.id === marketId);
   const { isConnected, walletState } = useWalletStore();
   const [loading, setLoading] = useState(false);
-  const [offerId, setOfferId] = useState(''); // Auto-generate
+  const [offerId, setOfferId] = useState(''); // Auto-generate next ID
   const [sellerId, setSellerId] = useState(''); // Auto from wallet
   const [amount, setAmount] = useState('');
   const [offerDetailsHash, setOfferDetailsHash] = useState('');
@@ -40,7 +40,7 @@ export default function PostOffer() {
       setSellerId(walletState.address.slice(-6)); // Mock short ID from address (real: parse or use full)
     }
     if (market) {
-      setOfferId((market.offersCount + 1).toString()); // Next available ID
+      setOfferId((market.offersCount + 1).toString()); // Next available ID from market
     }
   }, [walletState, market]);
 
@@ -109,7 +109,7 @@ export default function PostOffer() {
                   value={offerId}
                   onChange={(e) => setOfferId(e.target.value)}
                   placeholder="e.g., 1001"
-                  disabled // Auto-generated, read-only
+                  disabled // Read-only after auto-fill
                   required
                 />
               </div>
@@ -120,7 +120,7 @@ export default function PostOffer() {
                   value={sellerId}
                   onChange={(e) => setSellerId(e.target.value)}
                   placeholder="e.g., 201"
-                  disabled // Auto from wallet, read-only
+                  disabled // Read-only after auto-fill
                   required
                 />
               </div>
