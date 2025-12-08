@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation'; // For redirect and params
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation'; // For redirect
+import { useParams, useSearchParams } from 'next/navigation'; // For marketId and query params
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -13,44 +14,23 @@ import { contractService } from '@/lib/CONTRACT_SERVICE';
 import { toast } from 'sonner';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation'; // For getting marketId
 
-// Mock markets data (duplicated for this page—shared later if needed)
+// Mock markets for back link lookup
 const markets = [
-  {
-    id: 1,
-    name: 'Electronics',
-    sheriff: 'SheriffTechPro',
-    description: 'Gadgets, phones, laptops—tech deals secured.',
-    offersCount: 15,
-    image: '/moon.png',
-  },
-  {
-    id: 2,
-    name: 'Freelance Services',
-    sheriff: 'SheriffGigMaster',
-    description: 'Design, writing, coding—hire talent privately.',
-    offersCount: 28,
-    image: '/moon.png',
-  },
-  {
-    id: 3,
-    name: 'Art & Collectibles',
-    sheriff: 'SheriffArtGuard',
-    description: 'Digital art, NFTs, rarities—creative trades.',
-    offersCount: 9,
-    image: '/moon.png',
-  },
+  { id: 1, name: 'Electronics' },
+  { id: 2, name: 'Freelance Services' },
+  { id: 3, name: 'Art & Collectibles' },
 ];
 
 export default function AcceptOffer() {
   const router = useRouter();
-  const params = useParams(); // Gets { id } from /markets/[id]/accept-offer
+  const params = useParams();
+  const searchParams = useSearchParams(); // Reads ?offerId from URL
   const marketId = parseInt(params.id as string);
   const market = markets.find((m) => m.id === marketId);
   const { isConnected } = useWalletStore();
   const [loading, setLoading] = useState(false);
-  const [offerId, setOfferId] = useState('');
+  const [offerId, setOfferId] = useState(searchParams.get('offerId') || ''); // Autofill from query param
   const [buyerId, setBuyerId] = useState('');
   const [depositedAmount, setDepositedAmount] = useState('');
 
@@ -65,12 +45,12 @@ export default function AcceptOffer() {
       const result = await contractService.callFunction('accept_offer', [
         parseInt(offerId),
         parseInt(buyerId),
-        marketId, // From params
+        marketId,
         parseInt(depositedAmount),
       ]);
       if (result.success) {
         toast.success(result.message || 'Offer accepted successfully!');
-        router.push(`/markets/${marketId}`); // Back to market page
+        router.push(`/markets/${marketId}`);
       } else {
         toast.error(result.message || 'Failed to accept offer');
       }
@@ -82,7 +62,7 @@ export default function AcceptOffer() {
   };
 
   if (!market) {
-    return <div>Market not found</div>; // Fallback if invalid ID
+    return <div>Market not found</div>;
   }
 
   return (
@@ -112,7 +92,7 @@ export default function AcceptOffer() {
           <CardContent className="space-y-4">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="text-sm font-medium mb-2 block text-gray-300">Offer ID</label>
+                <label className="text-sm font-medium mb-2 block text-gray-300">Offer ID {offerId ? `(Pre-filled: ${offerId})` : ''}</label>
                 <Input
                   type="number"
                   value={offerId}
