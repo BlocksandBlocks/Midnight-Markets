@@ -46,11 +46,11 @@ export default function Home() {
         {/* How It Works */}
         <div className="space-y-6 mb-12">
           <div className="bg-gray-800/50 p-6 rounded-lg">
-            <h3 className="text-xl font-semibold text-midnight-blue mb-2">Initiate or Accept Offers</h3>
+            <h3 className="text-xl font-semibold text-gray mb-2">Initiate or Accept Offers</h3>
             <p className="text-gray-300">Buyers or sellers post offers. Anyone can accept—the purchase price is locked in a smart contract.</p>
           </div>
           <div className="bg-gray-800/50 p-6 rounded-lg">
-            <h3 className="text-xl font-semibold text-midnight-blue mb-2">Sheriff-Verified Delivery</h3>
+            <h3 className="text-xl font-semibold text-gray mb-2">Sheriff-Verified Delivery</h3>
             <p className="text-gray-300">Seller submits proof of delivery. The market's Sheriff reviews and releases funds—smooth and private.</p>
           </div>
         </div>
