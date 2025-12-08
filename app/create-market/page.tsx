@@ -144,7 +144,7 @@ export default function CreateMarket() {
 
       {/* Footer */}
       <footer className="w-full max-w-4xl text-center py-4 text-gray-500 text-sm">
-        © 2024 Night Mode. All rights reserved.
+        © 2025 Night Mode. All rights reserved.
       </footer>
     </div>
   );
