@@ -31,9 +31,16 @@ export default function AcceptOffer() {
   const { isConnected } = useWalletStore();
   const [loading, setLoading] = useState(false);
   const [offerId, setOfferId] = useState(searchParams.get('offerId') || ''); // Autofill from query param
-  const [buyerId, setBuyerId] = useState('');
+  const [buyerId, setBuyerId] = useState(''); // Auto from wallet
   const [depositedAmount, setDepositedAmount] = useState('');
 
+  // Auto-populate Buyer ID on mount
+  useEffect(() => {
+    if (walletState?.address) {
+      setBuyerId(walletState.address.slice(-6)); // Mock short ID from address (real: parse or use full)
+    }
+  }, [walletState]);
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isConnected) {
@@ -103,13 +110,13 @@ export default function AcceptOffer() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block text-gray-300">Buyer ID (Your ID)</label>
+                <label className="text-sm font-medium mb-2 block text-gray-300">Buyer ID (Auto: {buyerId || 'Connect Wallet'})</label>
                 <Input
                   type="number"
                   value={buyerId}
                   onChange={(e) => setBuyerId(e.target.value)}
                   placeholder="e.g., 301"
-                  disabled={loading}
+                  disabled // Read-only after auto-fill
                   required
                 />
               </div>
