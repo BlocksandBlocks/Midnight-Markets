@@ -28,7 +28,7 @@ export default function AcceptOffer() {
   const searchParams = useSearchParams(); // Reads ?offerId from URL
   const marketId = parseInt(params.id as string);
   const market = markets.find((m) => m.id === marketId);
-  const { isConnected } = useWalletStore();
+  const { isConnected, walletState } = useWalletStore();
   const [loading, setLoading] = useState(false);
   const [offerId, setOfferId] = useState(searchParams.get('offerId') || ''); // Autofill from query param
   const [buyerId, setBuyerId] = useState(''); // Auto from wallet
