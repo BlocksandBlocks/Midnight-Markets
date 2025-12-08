@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation'; // For redirect
-import { useParams, useSearchParams } from 'next/navigation'; // For marketId and query params
+import { useParams } from 'next/navigation'; // For marketId
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -15,23 +15,34 @@ import { toast } from 'sonner';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
-// Mock markets for back link lookup
+// Mock markets for back link lookup + offer count
 const markets = [
-  { id: 1, name: 'Electronics' },
-  { id: 2, name: 'Freelance Services' },
-  { id: 3, name: 'Art & Collectibles' },
+  { id: 1, name: 'Electronics', offersCount: 15 },
+  { id: 2, name: 'Freelance Services', offersCount: 28 },
+  { id: 3, name: 'Art & Collectibles', offersCount: 9 },
 ];
 
-export default function CancelOffer() {
+export default function PostOffer() {
   const router = useRouter();
   const params = useParams();
-  const searchParams = useSearchParams(); // Reads ?offerId from URL
   const marketId = parseInt(params.id as string);
   const market = markets.find((m) => m.id === marketId);
-  const { isConnected } = useWalletStore();
+  const { isConnected, walletState } = useWalletStore();
   const [loading, setLoading] = useState(false);
-  const [offerId, setOfferId] = useState(searchParams.get('offerId') || ''); // Autofill from query param
-  const [sellerId, setSellerId] = useState('');
+  const [offerId, setOfferId] = useState(''); // Auto-generate
+  const [sellerId, setSellerId] = useState(''); // Auto from wallet
+  const [amount, setAmount] = useState('');
+  const [offerDetailsHash, setOfferDetailsHash] = useState('');
+
+  // Auto-populate on mount
+  useEffect(() => {
+    if (walletState?.address) {
+      setSellerId(walletState.address.slice(-6)); // Mock short ID from address (real: parse or use full)
+    }
+    if (market) {
+      setOfferId((market.offersCount + 1).toString()); // Next available ID
+    }
+  }, [walletState, market]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,18 +52,21 @@ export default function CancelOffer() {
     }
     setLoading(true);
     try {
-      const result = await contractService.callFunction('cancel_offer_by_seller', [
+      const result = await contractService.callFunction('post_offer', [
         parseInt(offerId),
+        marketId,
         parseInt(sellerId),
+        parseInt(amount),
+        offerDetailsHash,
       ]);
       if (result.success) {
-        toast.success(result.message || 'Offer canceled successfully!');
+        toast.success(result.message || 'Offer posted successfully!');
         router.push(`/markets/${marketId}`);
       } else {
-        toast.error(result.message || 'Failed to cancel offer');
+        toast.error(result.message || 'Failed to post offer');
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Cancel failed');
+      toast.error(error instanceof Error ? error.message : 'Post failed');
     } finally {
       setLoading(false);
     }
@@ -81,31 +95,53 @@ export default function CancelOffer() {
       <main className="flex-grow flex flex-col justify-center items-center w-full max-w-md py-8">
         <Card className="w-full bg-gray-900/50 text-white border border-gray-700/50 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle className="text-2xl text-center">Cancel an Offer</CardTitle>
+            <CardTitle className="text-2xl text-center">Post an Offer</CardTitle>
             <CardDescription className="text-center">
-              Cancel your offer in {market.name}. Connect wallet to cancel.
+              Offer your goods or services in {market.name}. Connect wallet to post.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="text-sm font-medium mb-2 block text-gray-300">Offer ID {offerId ? `(Pre-filled: ${offerId})` : ''}</label>
+                <label className="text-sm font-medium mb-2 block text-gray-300">Offer ID (Auto: {offerId || 'Generating...'})</label>
                 <Input
                   type="number"
                   value={offerId}
                   onChange={(e) => setOfferId(e.target.value)}
-                  placeholder="e.g., 101"
-                  disabled={loading}
+                  placeholder="e.g., 1001"
+                  disabled // Auto-generated, read-only
                   required
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block text-gray-300">Seller ID (Your ID)</label>
+                <label className="text-sm font-medium mb-2 block text-gray-300">Seller ID (Auto: {sellerId || 'Connect Wallet'})</label>
                 <Input
                   type="number"
                   value={sellerId}
                   onChange={(e) => setSellerId(e.target.value)}
                   placeholder="e.g., 201"
+                  disabled // Auto from wallet, read-only
+                  required
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block text-gray-300">Amount ($Night)</label>
+                <Input
+                  type="number"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  placeholder="e.g., 1000"
+                  disabled={loading}
+                  required
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block text-gray-300">Offer Details Hash</label>
+                <Input
+                  type="text"
+                  value={offerDetailsHash}
+                  onChange={(e) => setOfferDetailsHash(e.target.value)}
+                  placeholder="e.g., 0xabc123..."
                   disabled={loading}
                   required
                 />
@@ -113,15 +149,15 @@ export default function CancelOffer() {
               <Button
                 type="submit"
                 disabled={loading || !isConnected}
-                className="w-full bg-red-600 hover:bg-red-700 text-white shadow-lg"
+                className="w-full bg-gradient-to-r from-midnight-blue to-blue-600 text-white shadow-lg"
               >
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Canceling...
+                    Posting...
                   </>
                 ) : (
-                  'Cancel Offer'
+                  'Post Offer'
                 )}
               </Button>
             </form>
