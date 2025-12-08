@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation'; // For redirect after success
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,12 +15,19 @@ import { Loader2 } from 'lucide-react';
 
 export default function CreateMarket() {
   const router = useRouter();
-  const { isConnected } = useWalletStore();
+  const { isConnected, walletState } = useWalletStore();
   const [loading, setLoading] = useState(false);
   const [marketId, setMarketId] = useState('');
   const [sheriffId, setSheriffId] = useState('');
   const [marketName, setMarketName] = useState('');
   const [sheriffFee, setSheriffFee] = useState('');
+
+  // Auto-populate Sheriff ID on mount
+  useEffect(() => {
+    if (walletState?.address) {
+      setSheriffId(walletState.address.slice(-6)); // Mock short ID from address (real: parse or use full)
+    }
+  }, [walletState]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,13 +91,13 @@ export default function CreateMarket() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block text-gray-300">Sheriff ID (Your ID)</label>
+                <label className="text-sm font-medium mb-2 block text-gray-300">Sheriff ID (Auto: {sheriffId || 'Connect Wallet'})</label>
                 <Input
                   type="number"
                   value={sheriffId}
                   onChange={(e) => setSheriffId(e.target.value)}
                   placeholder="e.g., 101"
-                  disabled={loading}
+                  disabled // Read-only after auto-fill
                   required
                 />
               </div>
