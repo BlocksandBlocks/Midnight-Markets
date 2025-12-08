@@ -59,7 +59,7 @@ interface Market {
   offers: Array<{ id: number; seller: string; amount: number; title: string }>;
 }
 
-export default function MarketPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function MarketPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const marketId = parseInt(id);
   const market = markets.find((m) => m.id === marketId) as Market;
