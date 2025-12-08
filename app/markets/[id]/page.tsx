@@ -104,9 +104,11 @@ export default async function MarketPage({ params }: { params: Promise<{ id: str
 
       {/* Action Buttons */}
       <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row gap-4 mb-8 justify-center">
-        <Button size="lg" className="w-full md:w-auto bg-gradient-to-r from-midnight-blue to-blue-600 text-white shadow-lg">
-          Post Offer
-        </Button>
+        <Link href={`/markets/${marketId}/post-offer`}>
+          <Button size="lg" className="w-full md:w-auto bg-gradient-to-r from-midnight-blue to-blue-600 text-white shadow-lg">
+            Post Offer
+          </Button>
+        </Link>
         <Button size="lg" variant="outline" className="w-full md:w-auto border-midnight-blue text-midnight-blue hover:bg-midnight-blue hover:text-white">
           Accept Offer
         </Button>
