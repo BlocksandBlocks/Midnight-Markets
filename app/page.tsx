@@ -14,7 +14,6 @@ export default function Home() {
       <header className="w-full max-w-6xl flex justify-between items-center py-4">
         <h1 className="text-4xl font-bold text-white drop-shadow-lg">Night Mode</h1>
         <div className="flex items-center space-x-4">
-          <NetworkStatus />
           <WalletConnect />
           <ThemeToggle />
         </div>
