@@ -76,7 +76,6 @@ export default async function MarketPage({ params }: { params: Promise<{ id: str
           ← Back to Markets
         </Link>
         <div className="flex items-center space-x-4">
-          <NetworkStatus />
           <WalletConnect />
           <ThemeToggle />
         </div>
