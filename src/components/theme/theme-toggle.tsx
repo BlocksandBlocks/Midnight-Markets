@@ -3,23 +3,19 @@
 import { Button } from '@/components/ui/button';
 import { Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
-import { toast } from 'sonner'; // Import sonner for toast
+import { toast } from 'sonner'; // For troll toast
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
 
   const handleToggle = () => {
-    if (theme === 'dark') {
-      // Attempting light—show toast and revert
-      toast("You played yourself. There is no day mode. Night mode forever!", {
-        duration: 3000,
-        style: { background: '#1e1e3f', color: 'white' }, // Dark theme toast
-      });
-      // Stay dark—no setTheme('light')
-    } else {
-      // Already light? Force dark (edge case)
-      setTheme('dark');
-    }
+    toast("You played yourself. There is no day mode. Night mode forever!", {
+      duration: 3000,
+      style: { background: '#1e1e3f', color: 'white' }, // Dark theme toast
+    });
+    // Brief animation: Toggle to light then back (visual feedback)
+    setTheme('light');
+    setTimeout(() => setTheme('dark'), 100);
   };
 
   return (
