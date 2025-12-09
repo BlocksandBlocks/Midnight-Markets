@@ -9,7 +9,7 @@ export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
 
   const handleToggle = () => {
-    toast("Day mode is a refuge of cowards. Night mode forever!", {
+    toast("Day mode is a last refuge of cowards. Embrace night!", {
       duration: 3000,
       style: { background: '#1e1e3f', color: 'white' }, // Dark theme toast
     });
