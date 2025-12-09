@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Outfit } from 'next/font/google'
 import { ThemeProvider } from '@/components/theme/theme-provider'
 import './globals.css'
+import { Toaster } from 'sonner';
 
 const outfit = Outfit({ 
   subsets: ['latin'],
@@ -36,6 +37,7 @@ export default function RootLayout({
             {children}
           </div>
         </ThemeProvider>
+        <Toaster />
       </body>
     </html>
   )
