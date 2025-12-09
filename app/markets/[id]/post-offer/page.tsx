@@ -85,7 +85,6 @@ export default function PostOffer() {
           Back to {market.name}
         </Link>
         <div className="flex items-center space-x-4">
-          <NetworkStatus />
           <WalletConnect />
           <ThemeToggle />
         </div>
