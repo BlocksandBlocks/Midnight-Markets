@@ -43,7 +43,7 @@ export default function Markets() {
     <div className="min-h-screen bg-gradient-to-br from-midnight-black via-gray-900 to-midnight-blue flex flex-col items-center p-4">
       {/* Header */}
       <header className="w-full max-w-6xl flex justify-between items-center py-4">
-        <h1 className="text-4xl font-bold text-midnight-blue">Night Mode Markets</h1>
+        <h1 className="text-4xl font-bold text-white drop-shadow-lg">Night Mode Markets</h1> {/* Brighter white with shadow */}
         <div className="flex items-center space-x-4">
           <NetworkStatus />
           <WalletConnect />
@@ -56,7 +56,7 @@ export default function Markets() {
         <h2 className="text-2xl font-bold text-white mb-4">Browse Existing Markets</h2>
         <p className="text-gray-300 mb-6">Don't see the market you need? Create one and become its Sheriff to earn fees.</p>
         <Link href="/create-market">
-          <Button size="lg" variant="outline" className="border-midnight-blue text-midnight-blue hover:bg-midnight-blue hover:text-white">
+          <Button size="lg" className="bg-gradient-to-r from-midnight-blue to-blue-600 text-white shadow-lg"> {/* Solid gradient for brightness */}
             Create a Market (Become Sheriff)
           </Button>
         </Link>
