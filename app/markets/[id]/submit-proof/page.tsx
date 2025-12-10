@@ -42,30 +42,38 @@ useEffect(() => {
 }, [walletState]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isConnected) {
-      toast.error('Please connect your wallet first');
-      return;
+  e.preventDefault();
+  if (!isConnected) {
+    toast.error('Please connect your wallet first');
+    return;
+  }
+  setLoading(true);
+  try {
+    // Hash proof details (user input as JSON string)
+    const proofJson = JSON.stringify({ proof: proofHash }); // Wrap user text in JSON
+    const encoder = new TextEncoder();
+    const data = encoder.encode(proofJson);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const proofHashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join(''); // Hex string for Bytes<32>
+
+    const result = await contractService.callFunction('submit_proof', [
+      parseInt(offerId),
+      parseInt(sellerId),
+      proofHashHex, // Use hashed value
+    ]);
+    if (result.success) {
+      toast.success(result.message || 'Proof submitted successfully!');
+      router.push(`/markets/${marketId}`);
+    } else {
+      toast.error(result.message || 'Failed to submit proof');
     }
-    setLoading(true);
-    try {
-      const result = await contractService.callFunction('submit_proof', [
-        parseInt(offerId),
-        parseInt(sellerId),
-        proofHash,
-      ]);
-      if (result.success) {
-        toast.success(result.message || 'Proof submitted successfully!');
-        router.push(`/markets/${marketId}`);
-      } else {
-        toast.error(result.message || 'Failed to submit proof');
-      }
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Submit failed');
-    } finally {
-      setLoading(false);
-    }
-  };
+  } catch (error) {
+    toast.error(error instanceof Error ? error.message : 'Submit failed');
+  } finally {
+    setLoading(false);
+  }
+};
 
   if (!market) {
     return <div>Market not found</div>;
