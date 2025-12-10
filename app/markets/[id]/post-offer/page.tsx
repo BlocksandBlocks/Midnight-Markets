@@ -45,32 +45,40 @@ export default function PostOffer() {
   }, [walletState, market]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isConnected) {
-      toast.error('Please connect your wallet first');
-      return;
+  e.preventDefault();
+  if (!isConnected) {
+    toast.error('Please connect your wallet first');
+    return;
+  }
+  setLoading(true);
+  try {
+    // Hash offer details (user input as JSON string)
+    const detailsJson = JSON.stringify({ description: offerDetailsHash }); // Wrap user text in JSON
+    const encoder = new TextEncoder();
+    const data = encoder.encode(detailsJson);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const offerDetailsHashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join(''); // Hex string for Bytes<32>
+
+    const result = await contractService.callFunction('post_offer', [
+      parseInt(offerId),
+      marketId,
+      parseInt(sellerId),
+      parseInt(amount),
+      offerDetailsHashHex, // Use hashed value
+    ]);
+    if (result.success) {
+      toast.success(result.message || 'Offer posted successfully!');
+      router.push(`/markets/${marketId}`);
+    } else {
+      toast.error(result.message || 'Failed to post offer');
     }
-    setLoading(true);
-    try {
-      const result = await contractService.callFunction('post_offer', [
-        parseInt(offerId),
-        marketId,
-        parseInt(sellerId),
-        parseInt(amount),
-        offerDetailsHash,
-      ]);
-      if (result.success) {
-        toast.success(result.message || 'Offer posted successfully!');
-        router.push(`/markets/${marketId}`);
-      } else {
-        toast.error(result.message || 'Failed to post offer');
-      }
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Post failed');
-    } finally {
-      setLoading(false);
-    }
-  };
+  } catch (error) {
+    toast.error(error instanceof Error ? error.message : 'Post failed');
+  } finally {
+    setLoading(false);
+  }
+};
 
   if (!market) {
     return <div>Market not found</div>;
