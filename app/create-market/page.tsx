@@ -21,6 +21,10 @@ export default function CreateMarket() {
   const [sheriffId, setSheriffId] = useState('');
   const [marketName, setMarketName] = useState('');
   const [sheriffFee, setSheriffFee] = useState('');
+  const [nameHash, setNameHash] = useState(''); // Computed hash
+  const [previewPrice, setPreviewPrice] = useState(0); // Tiered price
+  const [sheriffNftId, setSheriffNftId] = useState(''); // From mint response
+  const [step, setStep] = useState(1); // 1: Form, 2: Mint, 3: Create
 
   // Auto-populate Sheriff ID on mount
   useEffect(() => {
@@ -29,6 +33,26 @@ export default function CreateMarket() {
     }
   }, [walletState]);
 
+  const computeHashAndPrice = async (name: string) => {
+    if (!name) return;
+  
+    // Hash name (SHA-256 hex)
+    const encoder = new TextEncoder();
+    const data = encoder.encode(name);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    setNameHash(hash);
+  
+    // Tiered price (base 10 + geo 50 - niche 20/word >3)
+    const wordCount = name.split(' ').length;
+    const isGeo = name.toLowerCase().includes('la') || name.toLowerCase().includes('los angeles'); // Mock geo detect
+    const nicheScore = wordCount > 3 ? (wordCount - 3) * 20 : 0; // Discount for specificity
+    const geoPremium = isGeo ? 50 : 0;
+    const price = 10 + geoPremium - nicheScore;
+    setPreviewPrice(Math.max(price, 0)); // Min 0
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isConnected) {
@@ -36,21 +60,46 @@ export default function CreateMarket() {
       return;
     }
     setLoading(true);
+  
     try {
-      const result = await contractService.callFunction('create_market', [
-        parseInt(marketId),
-        parseInt(sheriffId),
-        marketName,
-        parseInt(sheriffFee),
-      ]);
-      if (result.success) {
-        toast.success(result.message || 'Market created successfully!');
-        router.push('/markets'); // Redirect to browse after success
-      } else {
-        toast.error(result.message || 'Failed to create market');
+      if (step === 1) {
+        // Step 1: Mint Sheriff NFT
+        await computeHashAndPrice(marketName); // Ensure hash/price
+        const result = await contractService.callFunction('mint_sheriff_nft', [
+          parseInt(sheriffId), // Temporary ID, real from mint
+          nameHash,
+          marketName.split(' ').length, // Word count
+          true, // Mock geo (add detect logic)
+          2, // Mock niche count (add detect)
+          previewPrice, // Payment
+        ]);
+        if (result.success) {
+          setSheriffNftId(result.data.nft_id || '1'); // From mint response
+          setStep(2); // Advance to create
+          toast.success('Sheriff NFT minted! Now create market.');
+        } else {
+          toast.error(result.message);
+        }
+        return;
+      }
+  
+      if (step === 2) {
+        // Step 2: Create Market with NFT ID
+        const result = await contractService.callFunction('create_market', [
+          parseInt(marketId),
+          parseInt(sheriffNftId),
+          marketName, // Plain name (hash verified on-chain)
+          parseInt(sheriffFee),
+        ]);
+        if (result.success) {
+          toast.success(result.message || 'Market created successfully!');
+          router.push('/markets'); // Redirect to browse
+        } else {
+          toast.error(result.message);
+        }
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Creation failed');
+      toast.error(error instanceof Error ? error.message : 'Action failed');
     } finally {
       setLoading(false);
     }
@@ -90,13 +139,13 @@ export default function CreateMarket() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block text-gray-300">Sheriff ID (Auto: {sheriffId || 'Connect Wallet'})</label>
+                <label className="text-sm font-medium mb-2 block text-gray-300">Sheriff NFT ID</label>
                 <Input
                   type="number"
-                  value={sheriffId}
-                  onChange={(e) => setSheriffId(e.target.value)}
-                  placeholder="e.g., 101"
-                  disabled // Read-only after auto-fill
+                  value={sheriffNftId}
+                  onChange={(e) => setSheriffNftId(e.target.value)}
+                  placeholder="e.g., 1 (from mint txn)"
+                  disabled={loading || step < 2}
                   required
                 />
               </div>
@@ -105,11 +154,17 @@ export default function CreateMarket() {
                 <Input
                   type="text"
                   value={marketName}
-                  onChange={(e) => setMarketName(e.target.value)}
-                  placeholder="e.g., 'Electronics Bazaar'"
-                  disabled={loading}
+                  onChange={(e) => {
+                    setMarketName(e.target.value);
+                    computeHashAndPrice(e.target.value);
+                  }}
+                  placeholder="e.g., 'Sheriff of Reddington Fly Rods LA'"
+                  disabled={loading || step > 1}
                   required
                 />
+                {previewPrice > 0 && (
+                  <p className="text-xs text-gray-400 mt-1">Est. Mint Cost: {previewPrice} $NIGHT (based on specificity)</p>
+                )}
               </div>
               <div>
                 <label className="text-sm font-medium mb-2 block text-gray-300">Sheriff Fee (bps)</label>
@@ -130,8 +185,10 @@ export default function CreateMarket() {
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Creating...
+                    Processing...
                   </>
+                ) : step === 1 ? (
+                  'Mint Sheriff NFT'
                 ) : (
                   'Create Market'
                 )}
