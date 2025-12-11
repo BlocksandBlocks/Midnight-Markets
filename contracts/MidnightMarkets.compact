@@ -16,6 +16,8 @@ export ledger owner_id: Uint<32>; // The owner of the Midnight Markets platform
 export ledger platform_fee_percentage: Uint<64>; // Percentage for the platform owner (e.g., 100 for 1%)
 export ledger total_markets: Uint<64>; // Total number of markets created
 export ledger total_offers: Uint<64>; // Total number of offers made across all markets
+export ledger total_sheriff_nfts: Uint<64>; // Total Sheriff NFTs minted
+export ledger sheriff_names: Map<Bytes<32>, Uint<32>>; // name_hash -> sheriff_nft_id for uniqueness
 export ledger nonce: Counter; // General purpose nonce for state changes
 
 // Maps to store market-specific data
@@ -39,6 +41,7 @@ constructor(initial_owner_id: Uint<32>, initial_platform_fee: Uint<64>) {
     platform_fee_percentage = disclose(initial_platform_fee);
     total_markets = 0;
     total_offers = 0;
+    total_sheriff_nfts = 0;
 }
 
 // Witness functions for privacy-preserving operations (removed for compilation)
@@ -47,19 +50,48 @@ constructor(initial_owner_id: Uint<32>, initial_platform_fee: Uint<64>) {
 // witness validate_proof_details(proof_data: Bytes<32>): [Bytes<32>];
 // witness authorize_sheriff_action(sheriff_id: Uint<32>, market_id: Uint<32>, secret: Bytes<32>): [Boolean];
 
-// Circuit to create a new market by a Sheriff
+// Circuit to mint a Sheriff NFT with embedded market name (tiered pricing, uniqueness check)
+export circuit mint_sheriff_nft(
+    nft_id: Uint<32>, // Unique NFT ID
+    name_hash: Bytes<32>, // SHA-256 hash of full market name (e.g., "Sheriff of Reddington Fly Rods LA")
+    word_count: Uint<8>, // Number of words in name for specificity
+    is_geo_specific: Boolean, // True if name includes geo (e.g., "LA")
+    niche_keywords_count: Uint<8>, // Number of niche terms (e.g., "fly rods" = 2)
+    payment_amount: Uint<64> // $NIGHT payment for mint (covers tiered price)
+): [] {
+    // Check uniqueness
+    assert(!sheriff_names.member(disclose(name_hash)), "Market name already taken");
+
+    // Tiered pricing calc (base 10 + geo premium 50 - niche discount 20 per keyword)
+    const base_fee = 10 as Uint<64>;
+    const geo_premium = if disclose(is_geo_specific) { 50 as Uint<64> } else { 0 as Uint<64> };
+    const niche_discount = (disclose(niche_keywords_count) * 20 as Uint<64>) as Uint<64>;
+    const calculated_price = (base_fee + geo_premium - niche_discount) as Uint<64>;
+    // Assert payment covers price (refund excess off-chain if needed)
+    assert(disclose(payment_amount) >= calculated_price, "Payment insufficient for tiered price");
+
+    // Insert name ownership (NFT metadata CID for full name reveal off-chain)
+    sheriff_names.insert(disclose(name_hash), disclose(nft_id));
+
+    total_sheriff_nfts = (total_sheriff_nfts + 1) as Uint<64>;
+    nonce.increment(1);
+}
+
+// Circuit to create a new market, linking to Sheriff NFT
 export circuit create_market(
     market_id: Uint<32>,
-    sheriff_id: Uint<32>, // The NFT holder's ID
-    market_name: Bytes<32>, // Arbitrary name designated by the Sheriff
+    sheriff_nft_id: Uint<32>, // The minted Sheriff NFT ID
+    market_name: Bytes<32>, // Arbitrary name designated by Sheriff
     sheriff_fee: Uint<64> // Sheriff's fee percentage (e.g., 100 for 1%)
 ): [] {
     // Ensure market_id is unique
     assert(!market_sheriffs.member(disclose(market_id)), "Market ID already exists");
-    // Ensure sheriff_fee is within reasonable bounds (e.g., 0-10000 for 0-100%)
+    // Verify Sheriff NFT owns a unique name
+    assert(sheriff_names.member(disclose(market_name)), "Invalid Sheriff NFT or name not owned");
+    // Ensure sheriff_fee is within reasonable bounds
     assert(disclose(sheriff_fee) <= 10000, "Sheriff fee percentage too high");
 
-    market_sheriffs.insert(disclose(market_id), disclose(sheriff_id));
+    market_sheriffs.insert(disclose(market_id), disclose(sheriff_nft_id));
     market_names.insert(disclose(market_id), disclose(market_name));
     market_escrow_balances.insert(disclose(market_id), 0 as Uint<64>); // Initialize escrow to 0
     market_sheriff_fee_percentage.insert(disclose(market_id), disclose(sheriff_fee));
