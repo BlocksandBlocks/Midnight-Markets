@@ -36,9 +36,9 @@ export default function Home() {
       {/* Main Content */}
       <main className="flex-grow flex flex-col justify-center items-center w-full max-w-4xl py-8 text-center">
         {/* Hook Title */}
-        <h2 className="text-4xl font-bold text-white mb-4">Your day job sucks. Your night job can be better.</h2>
+        <h2 className="text-4xl font-bold text-white mb-4">Your day job sucks. Switch to Night Mode.</h2>
         <p className="text-gray-300 mb-8 leading-relaxed">
-          Night Mode is a world of decentralized marketplaces run by Sheriffs. Create any market.  Be the Sheriff.  Trade every(legal)thing.
+          A world of decentralized marketplaces run by Sheriffs. Create any market.  Be the Sheriff.  Trade every(legal)thing.
         </p>
 
         {/* How It Works */}
