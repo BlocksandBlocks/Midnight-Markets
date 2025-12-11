@@ -51,6 +51,10 @@ export default function Home() {
             <h3 className="text-xl font-semibold text-white mb-2">Sheriff Reviewed Delivery</h3>
             <p className="text-gray-300">Seller submits proof of delivery. The market's Sheriff reviews and releases funds—smooth and private.</p>
           </div>
+          <div className="bg-gray-800/50 p-6 rounded-lg">
+            <h3 className="text-xl font-semibold text-white mb-2">Become a Sheriff</h3>
+            <p className="text-gray-300">Run your own marketplace. Gain a reputation. Build your own business inside Night Mode.</p>
+          </div>
         </div>
 
         {/* Prominent Buttons */}
