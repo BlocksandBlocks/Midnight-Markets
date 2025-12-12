@@ -80,56 +80,56 @@ export default function CreateMarket() {
 };
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  if (!isConnected) {
-    toast.error('Please connect your wallet first');
-    return;
-  }
-  setLoading(true);
-
-  try {
-    if (step === 1) {
-      // Step 1: Mint Sheriff NFT
-      await computeHashAndPrice(marketName); // Ensure hash/price
-      const result = await contractService.callFunction('mint_sheriff_nft', [
-        parseInt(sheriffId), // Temporary, real from mint
-        nameHash,
-        marketName.split(' ').length, // Word count
-        true, // Mock geo (add detect logic)
-        2, // Mock niche count (add detect)
-        previewPrice, // Payment
-      ]);
-      if (result.success) {
-        setSheriffNftId(result.data.nft_id || '1'); // From mint response
-        setStep(2); // Advance to create
-        toast.success('Sheriff NFT minted! Now create market.');
-      } else {
-        toast.error(result.message);
-      }
+    e.preventDefault();
+    if (!isConnected) {
+      toast.error('Please connect your wallet first');
       return;
     }
-
-    if (step === 2) {
-      // Step 2: Create Market with NFT ID
-      const result = await contractService.callFunction('create_market', [
-        parseInt(marketId),
-        parseInt(sheriffNftId),
-        marketName, // Plain name (hash verified on-chain)
-        parseInt(sheriffFee),
-      ]);
-      if (result.success) {
-        toast.success(result.message || 'Market created successfully!');
-        router.push('/markets'); // Redirect to browse
-      } else {
-        toast.error(result.message);
+    setLoading(true);
+  
+    try {
+      if (step === 1) {
+        // Step 1: Mint Sheriff NFT
+        await computeHashAndPrice(marketName); // Ensure hash/price
+        const result = await contractService.callFunction('mint_sheriff_nft', [
+          parseInt(sheriffId), // Temporary, real from mint
+          nameHash,
+          marketName.split(' ').length, // Word count
+          true, // Mock geo (add detect logic)
+          2, // Mock niche count (add detect)
+          previewPrice, // Payment
+        ]);
+        if (result.success) {
+          setSheriffNftId(result.data.nft_id || '1'); // From mint response
+          setStep(2); // Advance to create
+          toast.success('Sheriff NFT minted! Now create market.');
+        } else {
+          toast.error(result.message);
+        }
+        return;
       }
+  
+      if (step === 2) {
+        // Step 2: Create Market with NFT ID
+        const result = await contractService.callFunction('create_market', [
+          parseInt(marketId),
+          parseInt(sheriffNftId),
+          marketName, // Plain name (hash verified on-chain)
+          parseInt(sheriffFee),
+        ]);
+        if (result.success) {
+          toast.success(result.message || 'Market created successfully!');
+          router.push('/markets'); // Redirect to browse
+        } else {
+          toast.error(result.message);
+        }
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Action failed');
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    toast.error(error instanceof Error ? error.message : 'Action failed');
-  } finally {
-    setLoading(false);
-  }
-};
+  };
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-midnight-black via-gray-900 to-midnight-blue flex flex-col p-4">
