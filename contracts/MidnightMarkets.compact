@@ -16,6 +16,7 @@ export ledger owner_id: Uint<32>; // The owner of the Midnight Markets platform
 export ledger platform_fee_percentage: Uint<64>; // Percentage for the platform owner (e.g., 100 for 1%)
 export ledger total_markets: Uint<64>; // Total number of markets created
 export ledger total_offers: Uint<64>; // Total number of offers made across all markets
+export ledger sheriff_names: Map<Bytes<32>, Uint<32>>; // name_hash -> sheriff_nft_id
 export ledger total_sheriff_nfts: Uint<64>; // Total Sheriff NFTs minted
 export ledger sheriff_names: Map<Bytes<32>, Uint<32>>; // name_hash -> sheriff_nft_id for uniqueness
 export ledger nonce: Counter; // General purpose nonce for state changes
