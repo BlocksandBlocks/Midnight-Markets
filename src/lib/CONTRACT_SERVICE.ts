@@ -1,6 +1,6 @@
 'use client';
 
-import { DappConnector } from '@midnight-ntwrk/dapp-connector-api'; // Lace wallet
+import { DappConnectorAPI } from '@midnight-ntwrk/dapp-connector-api'; // Lace wallet API
 import { toast } from 'sonner';
 
 interface CallResult {
@@ -27,7 +27,7 @@ class ContractService {
     offers: {},
   };
 
-  private connector = new DappConnector(); // Lace instance
+  private api: DAppConnectorAPI | null = null; // Lace API instance
   
   getState(): MockState {
     return { ...this.mockState };
@@ -37,27 +37,28 @@ class ContractService {
     if (USE_MOCK) return this.mockCall(functionName, params);
 
     try {
-      const wallet = await this.connector.connect();
-      if (!wallet) return { success: false, message: 'Wallet not connected' };
-
+      // Real Lace wallet call
+      const api = await window.midnight.lace.enable();
+      if (!api) return { success: false, message: 'Lace wallet not connected' };
+      
       // Build payload for Compact function
       const txnPayload = {
         contract: CONTRACT_ADDRESS,
         function: functionName,
         params: params.map(p => ({ value: p, disclosed: true })), // Disclose params
       };
-
-      // Sign & submit shielded txn
-      const signedTxn = await wallet.signTransaction(txnPayload);
-      const result = await wallet.submitTransaction(signedTxn);
-
+      
+      // Balance/prove/sign txn
+      const balancedTxn = await api.balanceAndProveTransaction(txnPayload);
+      
+      // Submit shielded txn
+      const result = await api.submitTransaction(balancedTxn);
+      
       if (result.success) {
         this.updateState(functionName, params); // Sync UI state
         return { success: true, message: `Txn ${result.txnId} confirmed`, data: result };
       }
       return { success: false, message: result.error || 'Txn failed' };
-    } catch (error) {
-      return { success: false, message: error instanceof Error ? error.message : 'Call failed' };
     }
   }
 
