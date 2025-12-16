@@ -60,7 +60,7 @@ class ContractService {
       }
       return { success: false, message: result.error || 'Txn failed' };
         }
-  }
+  };
 
   private async mockCall(functionName: string, params: any[]): Promise<CallResult> {
   try {
