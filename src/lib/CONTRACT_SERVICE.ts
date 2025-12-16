@@ -138,5 +138,6 @@ class ContractService {
     return { success: false, message: error instanceof Error ? error.message : 'Unknown error' };
   }
 }
-
+} // Close class
+  
 export const contractService = new ContractService();
