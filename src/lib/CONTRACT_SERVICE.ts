@@ -56,10 +56,10 @@ class ContractService {
       
       if (result.success) {
         this.updateState(functionName, params); // Sync UI state
-        return { success: true, message: `Txn ${result.txnId} confirmed`, data: result };
+        return { success: true, message: `Txn ${result.txnId} confirmed`, data: result }; // Added ;
       }
       return { success: false, message: result.error || 'Txn failed' };
-    }
+        }
   }
 
   private async mockCall(functionName: string, params: any[]): Promise<CallResult> {
