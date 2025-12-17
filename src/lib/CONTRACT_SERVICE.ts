@@ -1,6 +1,6 @@
 'use client';
 
-import { DappConnectorAPI } from '@midnight-ntwrk/dapp-connector-api'; // Lace wallet API
+import { DAppConnectorAPI } from '@midnight-ntwrk/dapp-connector-api'; // Lace wallet API
 import { toast } from 'sonner';
 
 interface CallResult {
