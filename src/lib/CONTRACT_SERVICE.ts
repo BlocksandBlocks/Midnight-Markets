@@ -49,7 +49,7 @@ class ContractService {
       };
   
       // Balance/prove/sign txn
-      const balancedTxn = await api.balanceAndProveTransaction(txnPayload);
+      const balancedTxn = await api.balanceAndProveTransaction(txnPayload, { network: 'testnet' }); // Added options for Midnight API
   
       // Submit shielded txn
       const result = await api.submitTransaction(balancedTxn);
