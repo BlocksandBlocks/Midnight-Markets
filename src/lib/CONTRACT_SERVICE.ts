@@ -38,7 +38,7 @@ class ContractService {
   
     try {
       // Real Lace wallet call
-      const api = await window.midnight.lace.enable();
+      const api = await (window.midnight?.lace?.enable() || Promise.resolve(null));
       if (!api) return { success: false, message: 'Lace wallet not connected' };
   
       // Build payload for Compact function
