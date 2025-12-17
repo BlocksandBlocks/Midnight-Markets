@@ -49,7 +49,7 @@ class ContractService {
       };
   
       // Balance/prove/sign txn
-     const balancedTxn = await api.balanceAndProveTransaction(txnPayload as any, {}); // Empty options object for API
+      const balancedTxn = await api.balanceAndProveTransaction(txnPayload as any, []); // Empty coins array for API
   
       // Submit shielded txn
       const result = await api.submitTransaction(balancedTxn);
