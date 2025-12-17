@@ -1,7 +1,6 @@
 'use client';
 
 import { DAppConnectorAPI } from '@midnight-ntwrk/dapp-connector-api'; // Lace wallet API
-import { Transaction } from '@midnight-ntwrk/dapp-connector-api'; // For txn object
 import { toast } from 'sonner';
 
 interface CallResult {
@@ -42,15 +41,15 @@ class ContractService {
       const api = await (window.midnight?.lace?.enable() || Promise.resolve(null));
       if (!api) return { success: false, message: 'Lace wallet not connected' };
   
-      // Build Transaction object
-      const txn = new Transaction({
+      // Build payload directly (no Transaction object needed)
+      const txnPayload = {
         contract: CONTRACT_ADDRESS,
         function: functionName,
         params: params.map(p => ({ value: p, disclosed: true })), // Disclose params
-      });
+      };
       
       // Balance/prove/sign txn
-      const balancedTxn = await api.balanceAndProveTransaction(txn, { network: 'testnet' });
+      const balancedTxn = await api.balanceAndProveTransaction(txnPayload, { network: 'testnet' });
   
       // Submit shielded txn
       const result = await api.submitTransaction(balancedTxn);
