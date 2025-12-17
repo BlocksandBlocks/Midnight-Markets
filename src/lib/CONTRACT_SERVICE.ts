@@ -49,7 +49,7 @@ class ContractService {
       };
   
       // Balance/prove/sign txn
-      const balancedTxn = await api.balanceAndProveTransaction(txnPayload, { network: 'testnet' }); // Raw payload, no Transaction class
+     const balancedTxn = await api.balanceAndProveTransaction(txnPayload as any, { network: 'testnet' });
   
       // Submit shielded txn
       const result = await api.submitTransaction(balancedTxn);
