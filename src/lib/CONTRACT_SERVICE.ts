@@ -54,9 +54,9 @@ class ContractService {
       // Submit shielded txn
       const result = await api.submitTransaction(balancedTxn);
   
-      if (result.success) {
+      if (typeof result === 'string') { // Success: txn ID string
         this.updateState(functionName, params); // Sync UI state
-        return { success: true, message: `Txn ${result.txnId} confirmed`, data: result };
+        return { success: true, message: `Txn ${result} confirmed`, data: { txnId: result } };
       }
       return { success: false, message: result.error || 'Txn failed' };
     } catch (error) {
