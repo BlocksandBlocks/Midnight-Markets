@@ -14,6 +14,7 @@ interface MockState {
   platform_fee_percentage: number;
   market_sheriffs: Record<number, number>;
   offers: Record<number, { seller_id: number; amount: number; details_hash: string }>;
+  sheriff_names: Record<string, number>; // Added for NFT name uniqueness
 }
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS || '0x...'; // Deployed address
@@ -25,6 +26,7 @@ class ContractService {
     platform_fee_percentage: 100,  // 1%
     market_sheriffs: {},
     offers: {},
+    sheriff_names: {}, // Added for NFT name uniqueness
   };
 
   private api: DAppConnectorAPI | null = null; // Lace API instance
