@@ -58,7 +58,7 @@ class ContractService {
         this.updateState(functionName, params); // Sync UI state
         return { success: true, message: `Txn ${result} confirmed`, data: { txnId: result } };
       }
-      return { success: false, message: result.error || 'Txn failed' };
+      return { success: false, message: (result as any).error || 'Txn failed' };
     } catch (error) {
       return { success: false, message: error instanceof Error ? error.message : 'Txn failed' };
     }
