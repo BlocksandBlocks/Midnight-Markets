@@ -141,6 +141,24 @@ class ContractService {
     return { success: false, message: error instanceof Error ? error.message : 'Unknown error' };
   }
 }
+
+private updateState(functionName: string, params: any[]): void {
+  // Sync mockState after real call
+  switch (functionName) {
+    case 'post_offer':
+      const [offer_id, m_id, s_id, amt, details_hash] = params;
+      this.mockState.offers[offer_id] = { seller_id: s_id, amount: amt, details_hash };
+      break;
+    case 'create_market':
+      const [market_id, sheriff_id, market_name, sheriff_fee] = params;
+      this.mockState.market_sheriffs[market_id] = sheriff_id;
+      break;
+    // Add cases for other functions as needed
+    default:
+      break;
+  }
+}
+  
 } // Close class
   
 export const contractService = new ContractService();
