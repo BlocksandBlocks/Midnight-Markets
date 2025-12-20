@@ -43,12 +43,12 @@ export const useWalletStore = create<WalletStore>((set, get) => ({
       
       // Enable and get accounts (prompts if not enabled)
       await api.enable();
-      const accounts = await api.getAccounts();
+      const account = await api.getCurrentAccount();
       
-      if (accounts.length > 0) {
+      if (account) {
         const walletState: WalletState = {
-          address: accounts[0].address,
-          publicKey: accounts[0].publicKey || null,
+          address: account.address,
+          publicKey: account.publicKey || null,
           chainId: 'midnight-testnet',
           balances: [],
           isConnected: true,
