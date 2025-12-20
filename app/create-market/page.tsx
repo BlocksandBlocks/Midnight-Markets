@@ -49,7 +49,7 @@ export default function CreateMarket() {
   
     // Tiered price (base 10 + geo 50 - niche 20/word >3)
     const wordCount = name.split(' ').length;
-    const isGeo = name.toLowerCase().includes('la') || name.toLowerCase().includes('los angeles'); // Mock geo detect
+    const isGeo = name.toLowerCase().includes('la') || name.toLowerCase().includes('denver'); // Mock geo detect
     const nicheScore = wordCount > 3 ? (wordCount - 3) * 20 : 0; // Discount for specificity
     const geoPremium = isGeo ? 50 : 0;
     const price = 10 + geoPremium - nicheScore;
