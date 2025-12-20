@@ -32,46 +32,44 @@ export const useWalletStore = create<WalletStore>((set, get) => ({
 
   // Actions
   connect: async () => {
-    set({ isConnecting: true, error: null })
+    set({ isConnecting: true, error: null });
     
     try {
-      // Check if Midnight Lace wallet is available
-      if (typeof window === 'undefined' || !window.midnight?.mnLace) {
-        throw new Error('Midnight Lace wallet not found. Please install the extension.')
+      if (typeof window === 'undefined' || !window.midnight?.lace) {
+        throw new Error('Midnight Lace wallet not found. Please install the extension.');
       }
-
-      const api = window.midnight.mnLace
+  
+      const api = window.midnight.lace;
       
-      // Check if already enabled
-      const isEnabled = await api.isEnabled()
+      // Enable and get accounts (prompts if not enabled)
+      await api.enable();
+      const accounts = await api.getAccounts();
       
-      if (!isEnabled) {
-        // Request permission
-        await api.enable()
+      if (accounts.length > 0) {
+        const walletState: WalletState = {
+          address: accounts[0].address,
+          publicKey: accounts[0].publicKey || null,
+          chainId: 'midnight-testnet',
+          balances: [],
+          isConnected: true,
+          isLocked: false,
+        };
+  
+        set({ 
+          isConnected: true, 
+          isConnecting: false, 
+          walletState,
+          error: null 
+        });
+      } else {
+        throw new Error('No accounts found');
       }
-
-      // Get wallet state
-      const walletState: WalletState = {
-        address: 'midnight1234...5678', // Placeholder
-        publicKey: null,
-        chainId: 'midnight-testnet',
-        balances: [],
-        isConnected: true,
-        isLocked: false,
-      }
-
-      set({ 
-        isConnected: true, 
-        isConnecting: false, 
-        walletState,
-        error: null 
-      })
     } catch (error) {
       set({ 
         isConnecting: false, 
         error: error instanceof Error ? error.message : 'Failed to connect wallet' 
-      })
-      throw error
+      });
+      throw error;
     }
   },
 
