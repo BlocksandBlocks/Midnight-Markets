@@ -164,7 +164,7 @@ export default function CreateMarket() {
                     setMarketName(e.target.value);
                     computeHashAndPrice(e.target.value);
                   }}
-                  placeholder="e.g., 'Sheriff of Reddington Fly Rods LA'"
+                  placeholder="e.g., 'Sheriff of Fly Rods Colorado'"
                   disabled={loading}
                   required
                 />
