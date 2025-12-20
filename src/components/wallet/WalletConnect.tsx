@@ -3,6 +3,9 @@
 import { Button } from '@/components/ui/button'
 import { useWalletStore } from '@/lib/stores/walletStore'
 import { Loader2, Wallet } from 'lucide-react'
+import { DAppConnectorAPI } from '@midnight-ntwrk/dapp-connector-api'; // Lace API
+import { useWalletStore } from '@/lib/stores/walletStore'; // For state
+import { toast } from 'sonner'; // For errors
 
 function WalletConnect() {
   const { isConnected, isConnecting, connect, disconnect, walletState } = useWalletStore()
@@ -15,51 +18,36 @@ function WalletConnect() {
     }
   }
 
-  const handleDisconnect = async () => {
-    try {
-      await disconnect()
-    } catch (error) {
-      console.error('Failed to disconnect wallet:', error)
-    }
-  }
+  function WalletConnect() {
+  const { isConnected, walletState, setWallet } = useWalletStore(); // Assume setWallet in store for address
 
-  if (isConnected && walletState) {
-    return (
-      <Button
-        onClick={handleDisconnect}
-        variant="outline"
-        size="sm"
-        className="flex items-center gap-2"
-      >
-        <div className="h-2 w-2 rounded-full bg-green-500" />
-        <span className="text-xs">
-          {walletState.address?.slice(0, 6)}...{walletState.address?.slice(-4)}
-        </span>
-      </Button>
-    )
-  }
+  const handleConnect = async () => {
+    try {
+      const api = await (window.midnight?.lace?.enable() || Promise.resolve(null));
+      if (!api) {
+        toast.error('Lace wallet not found. Install the extension.');
+        return;
+      }
+      const accounts = await api.getAccounts();
+      if (accounts.length > 0) {
+        setWallet(accounts[0]); // Update store with address
+        toast.success(`Connected: ${accounts[0].address.slice(0, 6)}...${accounts[0].address.slice(-4)}`);
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Connect failed');
+    }
+  };
+
+  const handleDisconnect = () => {
+    setWallet(null); // Clear store
+    toast.success('Disconnected');
+  };
 
   return (
-    <Button
-      onClick={handleConnect}
-      disabled={isConnecting}
-      variant="default"
-      size="sm"
-      className="flex items-center gap-2"
-    >
-      {isConnecting ? (
-        <>
-          <Loader2 className="h-4 w-4 animate-spin" />
-          <span className="text-xs">Connecting...</span>
-        </>
-      ) : (
-        <>
-          <Wallet className="h-4 w-4" />
-          <span className="text-xs">Connect Wallet</span>
-        </>
-      )}
+    <Button variant="outline" size="sm" onClick={isConnected ? handleDisconnect : handleConnect}>
+      {isConnected ? `${walletState.address.slice(0, 6)}...${walletState.address.slice(-4)}` : 'Connect Wallet'}
     </Button>
-  )
+  );
 }
 
 export { WalletConnect }
