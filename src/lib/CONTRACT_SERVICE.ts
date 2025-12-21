@@ -40,24 +40,34 @@ class ContractService {
   
     try {
       // Real Lace wallet call
-      const api = await (window.midnight?.lace?.enable() || Promise.resolve(null));
+      const api = await (window.midnight?.lace?.connect('preprod') || Promise.resolve(null));
       if (!api) return { success: false, message: 'Lace wallet not connected' };
   
-      // Build payload directly
-      const txnPayload = {
+      // Make intent (unbalanced txn for contract call)
+      const intent = await api.makeIntent([], [
+        {
+          kind: 'unshielded',
+          type: 'native', // $DUST for testnet
+          value: 0n, // No value for call
+          recipient: api.getUnshieldedAddress(), // Self for call
+        }
+      ]);
+  
+      // Add contract call to intent (custom payload)
+      const intentWithCall = intent.addContractCall({
         contract: CONTRACT_ADDRESS,
         function: functionName,
-        params: params.map(p => ({ value: p, disclosed: true })), // Disclose params
-      };
+        params: params,
+      });
   
-      // Balance/prove/sign txn
-      const balancedTxn = await api.balanceAndProveTransaction(txnPayload as any, []); // Empty coins array for API
+      // Balance and prove
+      const balancedTxn = await api.balanceUnsealedTransaction(intentWithCall, { network: 'preprod' });
   
       // Submit shielded txn
       const result = await api.submitTransaction(balancedTxn);
   
-      if (typeof result === 'string') { // Success: txn ID string
-        this.updateState(functionName, params); // Sync UI state
+      if (typeof result === 'string') {
+        this.updateState(functionName, params);
         return { success: true, message: `Txn ${result} confirmed`, data: { txnId: result } };
       }
       return { success: false, message: (result as any).error || 'Txn failed' };
