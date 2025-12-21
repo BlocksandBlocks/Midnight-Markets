@@ -1,6 +1,7 @@
 'use client';
 
-import { DAppConnectorAPI } from '@midnight-ntwrk/dapp-connector-api'; // Lace wallet API
+// No import needed for window.midnight.lace (global from extension)
+// import { DAppConnectorAPI } from '@midnight-ntwrk/dapp-connector-api'; // Lace wallet API
 import { toast } from 'sonner';
 
 interface CallResult {
@@ -29,7 +30,7 @@ class ContractService {
     sheriff_names: {}, // Added for NFT name uniqueness
   };
 
-  private api: DAppConnectorAPI | null = null; // Lace API instance
+  // private api: DAppConnectorAPI | null = null; // Lace API instance
   
   getState(): MockState {
     return { ...this.mockState };
@@ -40,30 +41,27 @@ class ContractService {
   
     try {
       // Real Lace wallet call
-      const api = await (window.midnight?.lace?.connect('preprod') || Promise.resolve(null));
+      const api = await window.midnight.lace.enable();
       if (!api) return { success: false, message: 'Lace wallet not connected' };
   
-      // Make intent (unbalanced txn for contract call)
-      const intent = await api.makeIntent([], [
-        {
-          kind: 'unshielded',
-          type: 'native', // $DUST for testnet
-          value: 0n, // No value for call
-          recipient: api.getUnshieldedAddress(), // Self for call
-        }
-      ]);
+      // Get accounts
+      const accounts = await api.getAccounts();
+      if (!accounts || accounts.length === 0) return { success: false, message: 'No accounts found' };
   
-      // Add contract call to intent (custom payload)
-      const intentWithCall = intent.addContractCall({
+      // Make intent (unbalanced txn)
+      const intent = await api.makeIntent([]);
+  
+      // Add contract call to intent
+      const intentWithCall = await intent.addContractCall({
         contract: CONTRACT_ADDRESS,
         function: functionName,
         params: params,
       });
   
       // Balance and prove
-      const balancedTxn = await api.balanceUnsealedTransaction(intentWithCall, { network: 'preprod' });
+      const balancedTxn = await api.balanceUnsealedTransaction(intentWithCall, []);
   
-      // Submit shielded txn
+      // Submit
       const result = await api.submitTransaction(balancedTxn);
   
       if (typeof result === 'string') {
