@@ -45,7 +45,7 @@ export const useWalletStore = create<WalletStore>((set, get) => ({
       await api.enable();
       
       // Get accounts
-      const accounts = await api.getAccounts();
+      const accounts = await (api as any).getAccounts();
       
       if (accounts && accounts.length > 0) {
         const walletState: WalletState = {
