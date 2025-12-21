@@ -41,11 +41,11 @@ export const useWalletStore = create<WalletStore>((set, get) => ({
   
       const api = window.midnight.lace;
       
-      // Connect (prompts if not enabled)
-      const connectedApi = await api.connect('preprod'); // Use 'preprod' for testnet
+      // Enable (prompts if not)
+      await api.enable();
       
       // Get accounts
-      const accounts = await connectedApi.getAccounts();
+      const accounts = await api.getAccounts();
       
       if (accounts && accounts.length > 0) {
         const walletState: WalletState = {
