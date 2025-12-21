@@ -41,14 +41,16 @@ export const useWalletStore = create<WalletStore>((set, get) => ({
   
       const api = window.midnight.lace;
       
-      // Enable and get accounts (prompts if not enabled)
-      await api.enable();
-      const account = await api.getCurrentAccount();
+      // Connect (prompts if not enabled)
+      const connectedApi = await api.connect('preprod'); // Use 'preprod' for testnet
       
-      if (account) {
+      // Get accounts
+      const accounts = await connectedApi.getAccounts();
+      
+      if (accounts && accounts.length > 0) {
         const walletState: WalletState = {
-          address: account.address,
-          publicKey: account.publicKey || null,
+          address: accounts[0].address,
+          publicKey: accounts[0].publicKey || null,
           chainId: 'midnight-testnet',
           balances: [],
           isConnected: true,
