@@ -16,9 +16,6 @@ interface MockState {
   sheriff_names: Record<string, number>; // For NFT name uniqueness
 }
 
-const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS || '0x...'; // Deployed address
-const USE_MOCK = process.env.NODE_ENV === 'development'; // Toggle mocks
-
 class ContractService {
   private mockState: MockState = {
     owner_id: 1,
@@ -33,46 +30,7 @@ class ContractService {
   }
 
   async callFunction(functionName: string, params: any[]): Promise<CallResult> {
-    if (USE_MOCK) return this.mockCall(functionName, params);
-
-    // Real Lace call (uncomment after deploy)
-    /*
-    try {
-      // Enable Lace
-      const api = await window.midnight.lace.enable();
-      if (!api) return { success: false, message: 'Lace wallet not connected' };
-
-      // Get accounts
-      const accounts = await api.getAccounts();
-      if (!accounts || accounts.length === 0) return { success: false, message: 'No accounts found' };
-
-      // Make intent (unbalanced txn)
-      const intent = await api.makeIntent([]);
-
-      // Add contract call to intent
-      const intentWithCall = await intent.addContractCall({
-        contract: CONTRACT_ADDRESS,
-        function: functionName,
-        params: params,
-      });
-
-      // Balance and prove
-      const balancedTxn = await api.balanceUnsealedTransaction(intentWithCall, []);
-
-      // Submit
-      const result = await api.submitTransaction(balancedTxn);
-
-      if (typeof result === 'string') {
-        this.updateState(functionName, params);
-        return { success: true, message: `Txn ${result} confirmed`, data: { txnId: result } };
-      }
-      return { success: false, message: (result as any).error || 'Txn failed' };
-    } catch (error) {
-      return { success: false, message: error instanceof Error ? error.message : 'Txn failed' };
-    }
-    */
-
-    // Fallback to mocks for now
+    // Always use mocks for now (toggle with env later)
     return this.mockCall(functionName, params);
   }
 
