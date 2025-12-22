@@ -15,7 +15,7 @@ import { Loader2 } from 'lucide-react';
 
 export default function CreateMarket() {
   const router = useRouter();
-  const { isConnected } = useWalletStore();
+  const { isConnected, walletState } = useWalletStore(); // Added walletState for auto-fill
   const [loading, setLoading] = useState(false);
   const [marketId, setMarketId] = useState('');
   const [sheriffId, setSheriffId] = useState(''); // Temporary, real from mint
