@@ -14,21 +14,21 @@ import { ThemeToggle } from '@/components/theme/theme-toggle';
 const markets = [
   {
     id: 1,
-    name: 'Electronics',
-    sheriff: 'SheriffTechPro',
-    description: 'Gadgets, phones, laptops—tech deals secured.',
+    name: 'Cardano/Midnight Dev Work',
+    sheriff: 'SheriffDevs',
+    description: 'Aiken, Plutus, Typescript, Compact, Etc',
     offersCount: 15,
     image: '/moon.png',
     offers: [
-      { id: 101, seller: 'UserA', amount: 500, title: 'iPhone 15 Pro' },
-      { id: 102, seller: 'UserB', amount: 200, title: 'Wireless Headphones' },
+      { id: 101, seller: 'UserA', amount: 500, title: 'Aiken Dev For Hire' },
+      { id: 102, seller: 'UserB', amount: 200, title: 'Three Person Typescript Dev Team For Hire' },
     ],
   },
   {
     id: 2,
-    name: 'Freelance Services',
+    name: 'Freelance Design/Writing Services',
     sheriff: 'SheriffGigMaster',
-    description: 'Design, writing, coding—hire talent privately.',
+    description: 'Design, writing, graphics',
     offersCount: 28,
     image: '/moon.png',
     offers: [
@@ -38,13 +38,14 @@ const markets = [
   },
   {
     id: 3,
-    name: 'Art & Collectibles',
-    sheriff: 'SheriffArtGuard',
-    description: 'Digital art, NFTs, rarities—creative trades.',
+    name: 'Professional Services',
+    sheriff: 'SheriffProfessionalServices',
+    description: 'Accountants, Attorneys, Bookkeepers, Etc',
     offersCount: 9,
     image: '/moon.png',
     offers: [
-      { id: 301, seller: 'ArtistZ', amount: 1000, title: 'NFT Artwork' },
+      { id: 301, seller: 'ADALawyer', amount: 1000, title: 'Cardano Attorney' },
+      { id: 302, seller: 'NightAccountant', amount: 500, title: 'Midnight Project Accounting' },
     ],
   },
 ];
