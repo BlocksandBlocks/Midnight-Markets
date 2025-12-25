@@ -20,6 +20,11 @@ const markets = [
   { id: 1, name: 'Cardano/Midnight Dev Work' },
   { id: 2, name: 'Freelance Design/Writing Services' },
   { id: 3, name: 'Professional Services' },
+  { id: 4, name: 'Home Services' },
+  { id: 5, name: 'Language Lessons' },
+  { id: 6, name: 'Fitness Coaching' },
+  { id: 7, name: 'Misc. Zoom Lessons' },
+  { id: 8, name: 'Vibecoding Academy' },
 ];
 
 export default function SubmitProof() {
