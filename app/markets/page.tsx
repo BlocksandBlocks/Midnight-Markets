@@ -45,7 +45,7 @@ const markets = [
   },
   {
     id: 5,
-    name: 'Zoom Language Lessons',
+    name: 'Language Lessons',
     sheriff: 'SheriffZoomLanguageLessons',
     description: 'Language Lessons over video call.',
     offersCount: 9,
@@ -53,7 +53,7 @@ const markets = [
   },
   {
     id: 6,
-    name: 'Zoom Fitness Coaching',
+    name: 'Fitness Coaching',
     sheriff: 'SheriffZoomFitnessCoaching',
     description: 'Fitness coaching over video call.',
     offersCount: 9,
