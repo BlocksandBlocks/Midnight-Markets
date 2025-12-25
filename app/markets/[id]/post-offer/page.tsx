@@ -17,9 +17,9 @@ import Link from 'next/link';
 
 // Mock markets for back link lookup + offer count
 const markets = [
-  { id: 1, name: 'Electronics', offersCount: 15 },
-  { id: 2, name: 'Freelance Services', offersCount: 28 },
-  { id: 3, name: 'Art & Collectibles', offersCount: 9 },
+  { id: 1, name: 'Cardano/Midnight Dev Work', offersCount: 15 },
+  { id: 2, name: 'Freelance Design/Writing Services', offersCount: 28 },
+  { id: 3, name: 'Professional Services', offersCount: 9 },
   { id: 1, name: 'Cardano/Midnight Dev Work', offersCount: 9 },
   { id: 2, name: 'Freelance Design/Writing Services', offersCount: 11 },
   { id: 3, name: 'Professional Services', offersCount: 7 },
