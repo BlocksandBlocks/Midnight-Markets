@@ -67,6 +67,14 @@ const markets = [
     offersCount: 9,
     image: '/moon.png',
   },
+  {
+    id: 8,
+    name: 'Vibecoding Academy',
+    sheriff: 'SheriffMisc.ZoomLessons',
+    description: 'Vibecode Everything!',
+    offersCount: 9,
+    image: '/moon.png',
+  },
   // Add more mocks as needed
 ];
 
