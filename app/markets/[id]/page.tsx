@@ -100,6 +100,18 @@ const markets = [
       { id: 702, seller: 'JuliaCooking', amount: 600, title: 'Macaron Baking Class' },
     ],
   },
+  {
+    id: 8,
+    name: 'Vibecoding Academy',
+    sheriff: 'SheriffVibecodingAcademy',
+    description: 'Vibecode Everything',
+    offersCount: 9,
+    image: '/moon.png',
+    offers: [
+      { id: 801, seller: 'CodemMaster', amount: 2000, title: 'Vibecode in Typescript' },
+      { id: 802, seller: 'LeetLord', amount: 600, title: 'AI and Aiken for You' },
+    ],
+  },
 ];
 
 interface Market {
