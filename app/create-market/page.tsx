@@ -111,7 +111,7 @@ export default function CreateMarket() {
   if (!isConnected) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-midnight-black via-gray-900 to-midnight-blue flex flex-col p-4">
-        <header className="w-full max-w-4xl mx-auto flex justify-between items-center py-4">
+        <header className="w-full max-w-6xl flex justify-between items-center py-4">
           <Link href="/" className="text-4xl font-bold text-midnight-blue hover:underline">
             Night Mode
           </Link>
@@ -142,7 +142,7 @@ export default function CreateMarket() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-midnight-black via-gray-900 to-midnight-blue flex flex-col p-4">
-      <header className="w-full max-w-4xl mx-auto flex justify-between items-center py-4">
+      <header className="w-full max-w-6xl flex justify-between items-center py-4">
         <Link href="/" className="text-4xl font-bold text-midnight-blue hover:underline">
           Night Mode
         </Link>
