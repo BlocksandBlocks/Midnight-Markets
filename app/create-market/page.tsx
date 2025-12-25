@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { WalletConnect } from '@/components/wallet/WalletConnect';
-import { NetworkStatus } from '@/components/network/NetworkStatus';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
 import { useWalletStore } from '@/lib/stores/walletStore';
 import { contractService } from '@/lib/CONTRACT_SERVICE';
@@ -115,7 +114,6 @@ export default function CreateMarket() {
         <header className="w-full max-w-4xl mx-auto flex justify-between items-center py-4">
           <h1 className="text-4xl font-bold text-midnight-blue">Create a Market</h1>
           <div className="flex items-center space-x-4">
-            <NetworkStatus />
             <WalletConnect />
             <ThemeToggle />
           </div>
