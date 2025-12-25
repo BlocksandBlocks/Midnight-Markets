@@ -63,7 +63,7 @@ const markets = [
     id: 7,
     name: 'Misc. Zoom Lessons',
     sheriff: 'SheriffMisc.ZoomLessons',
-    description: 'Guitar | Cooking | Shadow Boxing ',
+    description: 'Guitar | Cooking | Crafts ',
     offersCount: 9,
     image: '/moon.png',
   },
