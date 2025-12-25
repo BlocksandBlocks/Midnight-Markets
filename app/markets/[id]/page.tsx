@@ -16,7 +16,7 @@ const markets = [
     id: 1,
     name: 'Cardano/Midnight Dev Work',
     sheriff: 'SheriffDevs',
-    description: 'Aiken, Plutus, Typescript, Compact, etc',
+    description: 'Aiken | Plutus | Typescript | Compact | etc',
     offersCount: 15,
     image: '/moon.png',
     offers: [
@@ -28,7 +28,7 @@ const markets = [
     id: 2,
     name: 'Freelance Design/Writing Services',
     sheriff: 'SheriffGigMaster',
-    description: 'Design, writing, graphics',
+    description: 'Design | writing | graphics',
     offersCount: 28,
     image: '/moon.png',
     offers: [
@@ -40,7 +40,7 @@ const markets = [
     id: 3,
     name: 'Professional Services',
     sheriff: 'SheriffProfessionalServices',
-    description: 'Accountants, Attorneys, Bookkeepers, etc',
+    description: 'Accountants | Attorneys | Bookkeepers | etc',
     offersCount: 9,
     image: '/moon.png',
     offers: [
@@ -56,8 +56,8 @@ const markets = [
     offersCount: 9,
     image: '/moon.png',
     offers: [
-      { id: 301, seller: 'ADAElectro', amount: 1000, title: 'Electrician Accepting ADA' },
-      { id: 302, seller: 'NightPlumber', amount: 500, title: 'Plumber Accepting Djed/Moneta/ADA/Night' },
+      { id: 401, seller: 'ADAElectro', amount: 1000, title: 'Electrician Accepting ADA' },
+      { id: 402, seller: 'NightPlumber', amount: 500, title: 'Plumber Accepting Djed/Moneta/ADA/Night' },
     ],
   },
   {
@@ -68,8 +68,9 @@ const markets = [
     offersCount: 9,
     image: '/moon.png',
     offers: [
-      { id: 301, seller: 'SpanishTeacher', amount: 1000, title: 'Spanish Lessons' },
-      { id: 302, seller: 'KoreanProf', amount: 500, title: 'Korean Lessons' },
+      { id: 501, seller: 'SpanishTeacher', amount: 1000, title: 'Spanish Lessons' },
+      { id: 502, seller: 'KoreanProf', amount: 500, title: 'Korean Lessons' },
+      { id: 503, seller: 'PolishLinguist', amount: 500, title: 'Polish Lessons' }
     ],
   },
   {
@@ -80,8 +81,8 @@ const markets = [
     offersCount: 9,
     image: '/moon.png',
     offers: [
-      { id: 301, seller: 'KettlebellAndy', amount: 300, title: 'Kettlebell Class' },
-      { id: 302, seller: 'NickCalesthenics', amount: 50, title: 'Daily Fitness Bootcamp in your Living Room' },
+      { id: 601, seller: 'KettlebellAndy', amount: 300, title: 'Kettlebell Class' },
+      { id: 602, seller: 'NickCalesthenics', amount: 50, title: 'Daily Fitness Bootcamp in your Living Room' },
     ],
   },
   {
@@ -92,8 +93,8 @@ const markets = [
     offersCount: 9,
     image: '/moon.png',
     offers: [
-      { id: 301, seller: 'GuitarwithMarco', amount: 1000, title: 'Spanish Guitar' },
-      { id: 302, seller: 'JuliaCooking', amount: 500, title: 'Macaron Baking Class' },
+      { id: 701, seller: 'GuitarwithMarco', amount: 2000, title: 'Spanish Guitar' },
+      { id: 702, seller: 'JuliaCooking', amount: 600, title: 'Macaron Baking Class' },
     ],
   },
 ];
