@@ -83,8 +83,11 @@ export default function Markets() {
     <div className="min-h-screen bg-gradient-to-br from-midnight-black via-gray-900 to-midnight-blue flex flex-col items-center p-4">
       {/* Header */}
       <header className="w-full max-w-6xl flex justify-between items-center py-4">
-        <h1 className="text-4xl font-bold text-white drop-shadow-lg">Night Mode Markets</h1> {/* Brighter white with shadow */}
+        <Link href="/" className="text-4xl font-bold text-midnight-blue hover:underline">
+          Night Mode
+        </Link>
         <div className="flex items-center space-x-4">
+          <NetworkStatus />
           <WalletConnect />
           <ThemeToggle />
         </div>
