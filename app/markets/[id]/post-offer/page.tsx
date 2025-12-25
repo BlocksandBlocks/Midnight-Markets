@@ -17,9 +17,17 @@ import Link from 'next/link';
 
 // Mock markets for back link lookup + offer count
 const markets = [
-  { id: 1, name: 'Cardano/Midnight Dev Work' },
-  { id: 2, name: 'Freelance Design/Writing Services' },
-  { id: 3, name: 'Professional Services' },
+  { id: 1, name: 'Electronics', offersCount: 15 },
+  { id: 2, name: 'Freelance Services', offersCount: 28 },
+  { id: 3, name: 'Art & Collectibles', offersCount: 9 },
+  { id: 1, name: 'Cardano/Midnight Dev Work', offersCount: 9 },
+  { id: 2, name: 'Freelance Design/Writing Services', offersCount: 11 },
+  { id: 3, name: 'Professional Services', offersCount: 7 },
+  { id: 4, name: 'Home Services', offersCount: 15 },
+  { id: 5, name: 'Language Lessons', offersCount: 6 },
+  { id: 6, name: 'Fitness Coaching', offersCount: 16 },
+  { id: 7, name: 'Misc. Zoom Lessons', offersCount: 19 },
+  { id: 8, name: 'Vibecoding Academy', offersCount: 22 },
 ];
 
 export default function PostOffer() {
