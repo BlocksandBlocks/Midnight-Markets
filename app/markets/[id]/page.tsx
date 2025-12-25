@@ -75,14 +75,17 @@ const markets = [
   },
   {
     id: 6,
-    name: 'Fitness Coaching',
+    name: 'Fitness/Sport Coaching',
     sheriff: 'SheriffFitnessCoaching',
     description: 'Fitness coaching over video call',
     offersCount: 9,
     image: '/moon.png',
     offers: [
       { id: 601, seller: 'KettlebellAndy', amount: 300, title: 'Kettlebell Class' },
-      { id: 602, seller: 'NickCalesthenics', amount: 50, title: 'Daily Fitness Bootcamp in your Living Room' },
+      { id: 602, seller: 'NickCalesthenics', amount: 400, title: 'Daily Fitness Bootcamp in your Living Room' },
+      { id: 603, seller: 'CoachKevin', amount: 750, title: 'Shadow Boxing' },
+      { id: 604, seller: 'KruLek', amount: 650, title: 'Muay Thai Technique' },
+      { id: 605, seller: 'Mark', amount: 350, title: 'Grappling Roll Analysis' },
     ],
   },
   {
