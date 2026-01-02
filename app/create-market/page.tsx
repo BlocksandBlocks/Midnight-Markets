@@ -25,7 +25,7 @@ export default function CreateMarket() {
   const [previewPrice, setPreviewPrice] = useState(0); // Tiered price
   const [nameAvailable, setNameAvailable] = useState(true); // Availability check
   const [sheriffNftId, setSheriffNftId] = useState(''); // From mint response
-  const [step, setStep] = useState(1); // 1: Form/Mint, 2: Create
+  const [step, setStep] = useState(1); // 1: Name + Preview/Mint, 2: Create with NFT ID
 
   // Auto-populate sheriffId from wallet
   useEffect(() => {
@@ -36,7 +36,7 @@ export default function CreateMarket() {
 
   const computeHashAndPrice = async (name: string) => {
     if (!name) return;
-
+  
     // Hash name (SHA-256 hex for Bytes<32>)
     const encoder = new TextEncoder();
     const data = encoder.encode(name);
@@ -44,17 +44,17 @@ export default function CreateMarket() {
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     setNameHash(hash);
-
+  
     // Tiered price (base 10 + geo 50 - niche 20/word >3)
     const wordCount = name.split(' ').length;
-    const isGeo = name.toLowerCase().includes('la') || name.toLowerCase().includes('los angeles');
-    const nicheScore = wordCount > 3 ? (wordCount - 3) * 20 : 0;
+    const isGeo = name.toLowerCase().includes('la') || name.toLowerCase().includes('los angeles'); // Mock geo detect
+    const nicheScore = wordCount > 3 ? (wordCount - 3) * 20 : 0; // Discount for specificity
     const geoPremium = isGeo ? 50 : 0;
     const price = 10 + geoPremium - nicheScore;
     setPreviewPrice(Math.max(price, 0));
-
+  
     // Availability check (mock—real: contractService call to sheriff_names.member(nameHash))
-    setNameAvailable(true);
+    setNameAvailable(true); // Mock available
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -64,7 +64,7 @@ export default function CreateMarket() {
       return;
     }
     setLoading(true);
-
+  
     try {
       if (step === 1) {
         // Step 1: Mint Sheriff NFT
@@ -86,7 +86,7 @@ export default function CreateMarket() {
         }
         return;
       }
-
+  
       if (step === 2) {
         // Step 2: Create Market with NFT ID
         const result = await contractService.callFunction('create_market', [
@@ -173,17 +173,19 @@ export default function CreateMarket() {
                   required
                 />
               </div>
-              <div>
-                <label className="text-sm font-medium mb-2 block text-gray-300">Sheriff NFT ID</label>
-                <Input
-                  type="number"
-                  value={sheriffNftId}
-                  onChange={(e) => setSheriffNftId(e.target.value)}
-                  placeholder="e.g., 1 (from mint txn)"
-                  disabled={loading || step < 2}
-                  required
-                />
-              </div>
+              {step === 2 && (
+                <div>
+                  <label className="text-sm font-medium mb-2 block text-gray-300">Sheriff NFT ID (from mint)</label>
+                  <Input
+                    type="number"
+                    value={sheriffNftId}
+                    onChange={(e) => setSheriffNftId(e.target.value)}
+                    placeholder="e.g., 1"
+                    disabled={loading}
+                    required
+                  />
+                </div>
+              )}
               <div>
                 <label className="text-sm font-medium mb-2 block text-gray-300">Market Name</label>
                 <Input
