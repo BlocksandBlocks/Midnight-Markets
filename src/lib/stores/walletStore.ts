@@ -46,7 +46,7 @@ export const useWalletStore = create<WalletStore>((set, get) => ({
     console.log('Connected object:', connected); // Debug—what is it?
 
     // Get accounts (cast to bypass type, or try nested if needed)
-    const addresses = await api.getUnshieldedAddresses(); // Beta method for addresses
+    const addresses = await connected.getUnshieldedAddresses(); // Use 'connected' from connect
     if (!addresses || addresses.length === 0) throw new Error('No addresses found');
     
     const walletState: WalletState = {
