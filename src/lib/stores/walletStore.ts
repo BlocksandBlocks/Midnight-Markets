@@ -45,12 +45,15 @@ export const useWalletStore = create<WalletStore>((set, get) => ({
   
       console.log('Connected object:', connected); // Debug
   
-      // Get unshielded address (singular string in beta)
-      const address = await connected.getUnshieldedAddress();
-      if (!address) throw new Error('No unshielded address found');
-  
-      console.log('Address:', address); // Debug
-  
+      // Get unshielded address (singular method returns object in beta)
+      const addressObj = await connected.getUnshieldedAddress();
+      if (!addressObj) throw new Error('No unshielded address found');
+      
+      console.log('Address object:', addressObj); // Debug
+      
+      // Extract string address (Bech32 format)
+      const address = typeof addressObj === 'string' ? addressObj : addressObj.toString(); // Safe conversion
+      
       const walletState: WalletState = {
         address: address,
         publicKey: null,
