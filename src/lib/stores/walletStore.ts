@@ -46,12 +46,12 @@ export const useWalletStore = create<WalletStore>((set, get) => ({
     console.log('Connected object:', connected); // Debug—what is it?
 
     // Get accounts (cast to bypass type, or try nested if needed)
-    const addresses = await connected.getUnshieldedAddresses(); // Use 'connected' from connect
-    if (!addresses || addresses.length === 0) throw new Error('No addresses found');
+    const address = await api.getUnshieldedAddress(); // Singular method per API doc
+    if (!address) throw new Error('No unshielded address found');
     
     const walletState: WalletState = {
-      address: addresses[0], // First address (string)
-      publicKey: null, // Midnight doesn't expose publicKey like Cardano
+      address: address, // Single string address
+      publicKey: null, // Midnight doesn't expose publicKey
       chainId: 'midnight-testnet',
       balances: [],
       isConnected: true,
