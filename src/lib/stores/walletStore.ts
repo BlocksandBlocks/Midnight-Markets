@@ -46,7 +46,7 @@ export const useWalletStore = create<WalletStore>((set, get) => ({
     console.log('Connected object:', connected); // Debug—what is it?
 
     // Get accounts (cast to bypass type, or try nested if needed)
-    const address = await api.getUnshieldedAddress(); // Singular method per API doc
+    const address = await connected.getUnshieldedAddress(); // Singular method per API doc
     if (!address) throw new Error('No unshielded address found');
     
     const walletState: WalletState = {
