@@ -32,48 +32,42 @@ export const useWalletStore = create<WalletStore>((set, get) => ({
 
   // Actions
   connect: async () => {
-    set({ isConnecting: true, error: null });
-    
-    try {
-      if (typeof window === 'undefined' || !window.midnight?.lace) {
-        throw new Error('Midnight Lace wallet not found. Please install the extension.');
-      }
+  set({ isConnecting: true, error: null });
   
-      const api = window.midnight.lace;
-      
-      // Enable (prompts if not)
-      await api.enable();
-      
-      // Get accounts
-      const accounts = await (api as any).getAccounts();
-      
-      if (accounts && accounts.length > 0) {
-        const walletState: WalletState = {
-          address: accounts[0].address,
-          publicKey: accounts[0].publicKey || null,
-          chainId: 'midnight-testnet',
-          balances: [],
-          isConnected: true,
-          isLocked: false,
-        };
-  
-        set({ 
-          isConnected: true, 
-          isConnecting: false, 
-          walletState,
-          error: null 
-        });
-      } else {
-        throw new Error('No accounts found');
-      }
-    } catch (error) {
-      set({ 
-        isConnecting: false, 
-        error: error instanceof Error ? error.message : 'Failed to connect wallet' 
-      });
-      throw error;
+  try {
+    if (typeof window === 'undefined' || !window.midnight?.mnLace) {
+      throw new Error('Midnight Lace wallet not found. Please install the extension.');
     }
-  },
+
+    const api = await window.midnight.mnLace.connect('preview');
+    if (!api) throw new Error('Connect failed');
+
+    const accounts = await api.getAccounts();
+    if (!accounts || accounts.length === 0) throw new Error('No accounts found');
+
+    const walletState: WalletState = {
+      address: accounts[0].address,
+      publicKey: accounts[0].publicKey || null,
+      chainId: 'midnight-testnet',
+      balances: [],
+      isConnected: true,
+      isLocked: false,
+    };
+
+    set({ 
+      isConnected: true, 
+      isConnecting: false, 
+      walletState,
+      error: null 
+    });
+  } catch (error) {
+    set({ 
+      isConnecting: false, 
+      error: error instanceof Error ? error.message : 'Failed to connect wallet' 
+    });
+    throw error;
+  }
+},
 
   disconnect: async () => {
     set({ 
