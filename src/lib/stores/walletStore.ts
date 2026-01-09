@@ -54,8 +54,10 @@ export const useWalletStore = create<WalletStore>((set, get) => ({
       // Extract string address (Bech32 format)
       const address = typeof addressObj === 'string' ? addressObj : addressObj.toString(); // Safe conversion
       
+      const addressString = typeof addressObj === 'string' ? addressObj : addressObj.unshieldedAddress || addressObj.toString(); // Extract string
+
       const walletState: WalletState = {
-        address: address,
+        address: addressString,
         publicKey: null,
         chainId: 'midnight-testnet',
         balances: [],
