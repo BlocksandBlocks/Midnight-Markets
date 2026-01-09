@@ -25,7 +25,10 @@ function WalletConnect() {
 
   return (
     <Button variant="outline" size="sm" onClick={isConnected ? handleDisconnect : handleConnect}>
-      {isConnected ? `${walletState?.address?.slice(0, 6)}...${walletState?.address?.slice(-4)}` : 'Connect Wallet'}
+      {isConnected && walletState?.address ? 
+        `${walletState.address.slice(0, 6)}...${walletState.address.slice(-4)}` : 
+        'Connect Wallet'
+      }
     </Button>
   );
 }
