@@ -39,7 +39,7 @@ export const useWalletStore = create<WalletStore>((set, get) => ({
       throw new Error('Midnight Lace wallet not found. Please install the extension.');
     }
 
-    const api = await window.midnight.mnLace.connect('preview');
+    const api = await (window.midnight.mnLace as any).connect('preview');
     if (!api) throw new Error('Connect failed');
 
     const accounts = await api.getAccounts();
