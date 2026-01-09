@@ -39,10 +39,15 @@ export const useWalletStore = create<WalletStore>((set, get) => ({
       throw new Error('Midnight Lace wallet not found. Please install the extension.');
     }
 
-    const api = await (window.midnight.mnLace as any).connect('preview');
-    if (!api) throw new Error('Connect failed');
+    const connected = await window.midnight.mnLace.connect('preview');
+    if (!connected) throw new Error('Connect failed');
 
-    const accounts = await api.getAccounts();
+    console.log('Connected API:', connected); // Debug—what does it log?
+
+    // Get accounts (direct on resolved object)
+    const accounts = await connected.getAccounts();
+    console.log('Accounts:', accounts); // Debug
+
     if (!accounts || accounts.length === 0) throw new Error('No accounts found');
 
     const walletState: WalletState = {
@@ -61,6 +66,7 @@ export const useWalletStore = create<WalletStore>((set, get) => ({
       error: null 
     });
   } catch (error) {
+    console.error('Connect error:', error); // Debug
     set({ 
       isConnecting: false, 
       error: error instanceof Error ? error.message : 'Failed to connect wallet' 
