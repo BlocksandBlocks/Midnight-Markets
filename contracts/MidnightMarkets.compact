@@ -18,7 +18,6 @@ export ledger total_markets: Uint<64>; // Total number of markets created
 export ledger total_offers: Uint<64>; // Total number of offers made across all markets
 export ledger sheriff_names: Map<Bytes<32>, Uint<32>>; // name_hash -> sheriff_nft_id
 export ledger total_sheriff_nfts: Uint<64>; // Total Sheriff NFTs minted
-export ledger sheriff_names: Map<Bytes<32>, Uint<32>>; // name_hash -> sheriff_nft_id for uniqueness
 export ledger nonce: Counter; // General purpose nonce for state changes
 
 // Maps to store market-specific data
@@ -81,20 +80,18 @@ export circuit mint_sheriff_nft(
 // Circuit to create a new market, linking to Sheriff NFT
 export circuit create_market(
     market_id: Uint<32>,
-    sheriff_nft_id: Uint<32>, // The minted Sheriff NFT ID
-    market_name: Bytes<32>, // Arbitrary name designated by Sheriff
-    sheriff_fee: Uint<64> // Sheriff's fee percentage (e.g., 100 for 1%)
+    sheriff_nft_id: Uint<32>,
+    name_hash: Bytes<32>, // Hash verified from mint
+    market_name: Bytes<32>,
+    sheriff_fee: Uint<64>
 ): [] {
-    // Ensure market_id is unique
     assert(!market_sheriffs.member(disclose(market_id)), "Market ID already exists");
-    // Verify Sheriff NFT owns a unique name
-    assert(sheriff_names.member(disclose(market_name)), "Invalid Sheriff NFT or name not owned");
-    // Ensure sheriff_fee is within reasonable bounds
+    assert(sheriff_names.member(disclose(name_hash)), "Invalid Sheriff NFT or name not owned");
     assert(disclose(sheriff_fee) <= 10000, "Sheriff fee percentage too high");
 
     market_sheriffs.insert(disclose(market_id), disclose(sheriff_nft_id));
     market_names.insert(disclose(market_id), disclose(market_name));
-    market_escrow_balances.insert(disclose(market_id), 0 as Uint<64>); // Initialize escrow to 0
+    market_escrow_balances.insert(disclose(market_id), 0 as Uint<64>);
     market_sheriff_fee_percentage.insert(disclose(market_id), disclose(sheriff_fee));
 
     total_markets = (total_markets + 1) as Uint<64>;
