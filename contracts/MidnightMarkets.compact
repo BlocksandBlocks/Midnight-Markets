@@ -50,43 +50,33 @@ constructor(initial_owner_id: Uint<32>, initial_platform_fee: Uint<64>) {
 // witness validate_proof_details(proof_data: Bytes<32>): [Bytes<32>];
 // witness authorize_sheriff_action(sheriff_id: Uint<32>, market_id: Uint<32>, secret: Bytes<32>): [Boolean];
 
-// Circuit to mint a Sheriff NFT with embedded market name (tiered pricing, uniqueness check)
-export circuit mint_sheriff_nft(
-    nft_id: Uint<32>, // Unique NFT ID
-    name_hash: Bytes<32>, // SHA-256 hash of full market name (e.g., "Sheriff of Reddington Fly Rods LA")
-    word_count: Uint<8>, // Number of words in name for specificity
-    is_geo_specific: Boolean, // True if name includes geo (e.g., "LA")
-    niche_keywords_count: Uint<8>, // Number of niche terms (e.g., "fly rods" = 2)
-    payment_amount: Uint<64> // $NIGHT payment for mint (covers tiered price)
+// Batch circuit: Mint Sheriff NFT + Create Market in one txn
+export circuit create_market_with_mint(
+    market_id: Uint<32>,
+    name_hash: Bytes<32>, // SHA-256 hash of full market name
+    word_count: Uint<8>, // Number of words for specificity
+    is_geo_specific: Boolean, // True for geo premium
+    niche_keywords_count: Uint<8>, // Niche discount count
+    payment_amount: Uint<64>, // Payment for NFT mint
+    market_name: Bytes<32>, // Plain name for storage
+    sheriff_fee: Uint<64> // Sheriff's fee percentage
 ): [] {
-    // Check uniqueness
+    // Uniqueness + pricing from mint
     assert(!sheriff_names.member(disclose(name_hash)), "Market name already taken");
 
-    // Tiered pricing calc (base 10 + geo premium 50 - niche discount 20 per keyword)
     const base_fee = 10 as Uint<64>;
     const geo_premium = if disclose(is_geo_specific) { 50 as Uint<64> } else { 0 as Uint<64> };
     const niche_discount = (disclose(niche_keywords_count) * 20 as Uint<64>) as Uint<64>;
     const calculated_price = (base_fee + geo_premium - niche_discount) as Uint<64>;
-    // Assert payment covers price (refund excess off-chain if needed)
     assert(disclose(payment_amount) >= calculated_price, "Payment insufficient for tiered price");
 
-    // Insert name ownership (NFT metadata CID for full name reveal off-chain)
-    sheriff_names.insert(disclose(name_hash), disclose(nft_id));
-
+    // Auto-mint Sheriff NFT ID
+    const sheriff_nft_id = (total_sheriff_nfts + 1) as Uint<32>;
+    sheriff_names.insert(disclose(name_hash), disclose(sheriff_nft_id));
     total_sheriff_nfts = (total_sheriff_nfts + 1) as Uint<64>;
-    nonce.increment(1);
-}
 
-// Circuit to create a new market, linking to Sheriff NFT
-export circuit create_market(
-    market_id: Uint<32>,
-    sheriff_nft_id: Uint<32>,
-    name_hash: Bytes<32>, // Hash verified from mint
-    market_name: Bytes<32>,
-    sheriff_fee: Uint<64>
-): [] {
+    // Create market
     assert(!market_sheriffs.member(disclose(market_id)), "Market ID already exists");
-    assert(sheriff_names.member(disclose(name_hash)), "Invalid Sheriff NFT or name not owned");
     assert(disclose(sheriff_fee) <= 10000, "Sheriff fee percentage too high");
 
     market_sheriffs.insert(disclose(market_id), disclose(sheriff_nft_id));
