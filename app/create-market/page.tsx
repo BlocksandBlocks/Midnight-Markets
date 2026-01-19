@@ -17,7 +17,7 @@ export default function CreateMarket() {
   const router = useRouter();
   const { isConnected, walletState } = useWalletStore(); // Added walletState for auto-fill
   const [loading, setLoading] = useState(false);
-  const [marketId, setMarketId] = useState('');
+  const [marketId, setMarketId] = useState('Auto'); // Auto-generated, read-only
   const [sheriffId, setSheriffId] = useState(''); // Temporary, real from mint
   const [marketName, setMarketName] = useState('');
   const [sheriffFee, setSheriffFee] = useState('');
@@ -90,7 +90,9 @@ export default function CreateMarket() {
       if (step === 2) {
         // Step 2: Create Market with NFT ID
         const result = await contractService.callFunction('create_market', [
-          parseInt(marketId),
+          // Auto Market ID (mock next—real: await contractService.getNextMarketId())
+          const nextMarketId = 1; // Mock; real: from contract total_markets + 1
+          nextMarketId,
           parseInt(sheriffNftId),
           marketName,
           parseInt(sheriffFee),
@@ -163,14 +165,12 @@ export default function CreateMarket() {
           <CardContent className="space-y-4">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="text-sm font-medium mb-2 block text-gray-300">Market ID</label>
+                <label className="text-sm font-medium mb-2 block text-gray-300">Market ID (Auto-generated)</label>
                 <Input
-                  type="number"
+                  type="text"
                   value={marketId}
-                  onChange={(e) => setMarketId(e.target.value)}
-                  placeholder="e.g., 1"
-                  disabled={loading || step > 1}
-                  required
+                  disabled // Read-only
+                  className="bg-gray-800/50"
                 />
               </div>
               {step === 2 && (
