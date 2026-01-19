@@ -89,9 +89,10 @@ export default function CreateMarket() {
   
       if (step === 2) {
         // Step 2: Create Market with NFT ID
+        // Auto Market ID (mock next—real: await contractService.getNextMarketId())
+        const nextMarketId = 1; // Mock; real: from contract total_markets + 1
+        
         const result = await contractService.callFunction('create_market', [
-          // Auto Market ID (mock next—real: await contractService.getNextMarketId())
-          const nextMarketId = 1; // Mock; real: from contract total_markets + 1
           nextMarketId,
           parseInt(sheriffNftId),
           marketName,
