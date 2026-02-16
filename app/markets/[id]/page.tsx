@@ -9,6 +9,7 @@ import Image from 'next/image';
 import { WalletConnect } from '@/components/wallet/WalletConnect';
 import { NetworkStatus } from '@/components/network/NetworkStatus';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
+import { useWalletStore } from '@/lib/stores/walletStore'; // For address
 
 // Mock markets data (same as /markets page—fetch real from API later)
 const markets = [
