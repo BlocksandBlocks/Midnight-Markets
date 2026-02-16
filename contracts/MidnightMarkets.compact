@@ -19,6 +19,8 @@ export ledger total_offers: Uint<64>; // Total number of offers made across all 
 export ledger sheriff_names: Map<Bytes<32>, Uint<32>>; // name_hash -> sheriff_nft_id
 export ledger total_sheriff_nfts: Uint<64>; // Total Sheriff NFTs minted
 export ledger nonce: Counter; // General purpose nonce for state changes
+export ledger offer_deposit_timestamps: Map<Uint<32>, Timestamp>; // offer_id -> timestamp of accept_offer
+export ledger offer_proof_timestamps: Map<Uint<32>, Timestamp>; // offer_id -> timestamp of submit_proof
 
 // Maps to store market-specific data
 export ledger market_sheriffs: Map<Uint<32>, Uint<32>>; // market_id -> sheriff_id (NFT holder)
@@ -130,6 +132,7 @@ export circuit accept_offer(
 
     offers.insert(disclose(offer_id), OfferStatus.Accepted);
     offer_buyer_ids.insert(disclose(offer_id), disclose(buyer_id));
+    offer_deposit_timestamps.insert(disclose(offer_id), current_timestamp); // Track deposit time
 
     // Update market escrow balance
     const current_escrow = market_escrow_balances.lookup(disclose(market_id));
@@ -152,7 +155,56 @@ export circuit submit_proof(
 
     offers.insert(disclose(offer_id), OfferStatus.ProofSubmitted);
     offer_proof_hashes.insert(disclose(offer_id), disclose(proof_hash));
+    offer_proof_timestamps.insert(disclose(offer_id), current_timestamp); // Track proof time
 
+    nonce.increment(1);
+}
+
+// Circuit for buyer to refund escrow if seller silent (no proof after 2 weeks)
+export circuit buyer_refund_timeout(
+    offer_id: Uint<32>,
+    buyer_id: Uint<32>
+): [] {
+    // Ensure offer exists and is accepted (no proof yet)
+    assert(offers.member(disclose(offer_id)), "Offer does not exist");
+    assert(offers.lookup(disclose(offer_id)) == OfferStatus.Accepted, "Offer not eligible for buyer refund");
+    // Ensure caller is buyer
+    assert(offer_buyer_ids.lookup(disclose(offer_id)) == disclose(buyer_id), "Only buyer can refund");
+    // Timeout: 2 weeks (1,209,600 seconds) from deposit
+    const deposit_time = offer_deposit_timestamps.lookup(disclose(offer_id));
+    assert(current_timestamp >= deposit_time + 1209600, "Timeout not reached");
+
+    // Refund full escrow to buyer (conceptual—no fee)
+    const offer_amount = offer_amounts.lookup(disclose(offer_id));
+    const market_id = offer_market_ids.lookup(disclose(offer_id));
+    const current_escrow = market_escrow_balances.lookup(disclose(market_id));
+    market_escrow_balances.insert(disclose(market_id), (current_escrow - offer_amount) as Uint<64>);
+
+    offers.insert(disclose(offer_id), OfferStatus.Cancelled);
+    nonce.increment(1);
+}
+
+// Circuit for seller to refund escrow if sheriff silent (no release after proof + 2 weeks)
+export circuit seller_refund_timeout(
+    offer_id: Uint<32>,
+    seller_id: Uint<32>
+): [] {
+    // Ensure offer exists and proof submitted
+    assert(offers.member(disclose(offer_id)), "Offer does not exist");
+    assert(offers.lookup(disclose(offer_id)) == OfferStatus.ProofSubmitted, "Offer not eligible for seller refund");
+    // Ensure caller is seller
+    assert(offer_seller_ids.lookup(disclose(offer_id)) == disclose(seller_id), "Only seller can refund");
+    // Timeout: 2 weeks from proof submit
+    const proof_time = offer_proof_timestamps.lookup(disclose(offer_id));
+    assert(current_timestamp >= proof_time + 1209600, "Timeout not reached");
+
+    // Refund full escrow to seller (conceptual—seller delivered)
+    const offer_amount = offer_amounts.lookup(disclose(offer_id));
+    const market_id = offer_market_ids.lookup(disclose(offer_id));
+    const current_escrow = market_escrow_balances.lookup(disclose(market_id));
+    market_escrow_balances.insert(disclose(market_id), (current_escrow - offer_amount) as Uint<64>);
+
+    offers.insert(disclose(offer_id), OfferStatus.Cancelled);
     nonce.increment(1);
 }
 
