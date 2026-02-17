@@ -23,7 +23,7 @@ export default function Home() {
       <div className="w-full mb-12">
         <div className="relative w-full h-[900px]"> {/* Tall for full uncropped rectangular */}
           <Image
-            src="/blue lobster.png"
+            src="/blue claw.png"
             alt="Night Lobster"
             fill
             className="object-contain opacity-60" // Full image, brighter
