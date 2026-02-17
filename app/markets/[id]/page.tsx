@@ -188,11 +188,6 @@ export default function MarketPage() {
     }
   };
 
-  const isTimeout = (status: string) => {
-    // Mock 2-week timeout (real: compare contract current_timestamp to deposit/proof time)
-    return true; // Mock always true for testing—real: Date.now() - timestamp > 1209600000 ms (2 weeks)
-  };
-
   const handleBuyerRefund = async (offerId: number) => {
     if (!isConnected) {
       toast.error('Connect wallet first');
