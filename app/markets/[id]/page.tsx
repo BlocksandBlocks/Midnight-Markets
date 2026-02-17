@@ -10,6 +10,7 @@ import Image from 'next/image';
 import { WalletConnect } from '@/components/wallet/WalletConnect';
 import { NetworkStatus } from '@/components/network/NetworkStatus';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
+import { contractService } from '@/lib/CONTRACT_SERVICE'; // For contract calls
 import { useWalletStore } from '@/lib/stores/walletStore'; // For address
 import { toast } from 'sonner';
 
