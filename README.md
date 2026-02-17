@@ -33,3 +33,13 @@ This scaffold uses the official Midnight brand colors:
 1. Install the Midnight Lace wallet extension
 2. Connect your wallet using the "Connect Midnight" button
 3. Start building your privacy-preserving dApp!
+
+## Contract Deployment (Option B: Manual Cloud Runner)
+
+If you want to keep your Midnight private key out of GitHub entirely, use the manual cloud-runner flow documented here:
+
+- `docs/DEPLOY_OPTION_B.md`
+- Helper script: `scripts/deploy-preprod-manual.sh`
+
+This supports manually entering the key at deploy time in an ephemeral cloud shell session.
+
