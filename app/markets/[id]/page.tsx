@@ -188,48 +188,6 @@ export default function MarketPage() {
     }
   };
 
-  const handleBuyerRefund = async (offerId: number) => {
-    if (!isConnected) {
-      toast.error('Connect wallet first');
-      return;
-    }
-    setActionLoading(offerId);
-    try {
-      const result = await contractService.callFunction('buyer_refund_timeout', [offerId]);
-      if (result.success) {
-        toast.success('Escrow refunded!');
-        // Refresh offers (e.g., refetch market data)
-      } else {
-        toast.error(result.message || 'Refund failed');
-      }
-    } catch (error) {
-      toast.error('Refund failed');
-    } finally {
-      setActionLoading(null);
-    }
-  };
-  
-  const handleSellerClaim = async (offerId: number) => {
-    if (!isConnected) {
-      toast.error('Connect wallet first');
-      return;
-    }
-    setActionLoading(offerId);
-    try {
-      const result = await contractService.callFunction('seller_refund_timeout', [offerId]);
-      if (result.success) {
-        toast.success('Funds claimed!');
-        // Refresh offers
-      } else {
-        toast.error(result.message || 'Claim failed');
-      }
-    } catch (error) {
-      toast.error('Claim failed');
-    } finally {
-      setActionLoading(null);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-midnight-black via-gray-900 to-midnight-blue flex flex-col p-4">
       {/* Header */}
