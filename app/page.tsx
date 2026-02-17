@@ -23,8 +23,8 @@ export default function Home() {
       <div className="w-full mb-12">
         <div className="relative w-full h-[900px]"> {/* Tall for full uncropped rectangular */}
           <Image
-            src="/moon.png"
-            alt="Crescent Moon – Symbol of Night Mode"
+            src="/blue lobster.png"
+            alt="Night Lobster"
             fill
             className="object-contain opacity-60" // Full image, brighter
             priority
@@ -38,7 +38,7 @@ export default function Home() {
         {/* Hook Title */}
         <h2 className="text-4xl font-bold text-white mb-4">Your day job sucks. Switch to Night Mode.</h2>
         <p className="text-gray-300 mb-8 leading-relaxed">
-          A world of decentralized marketplaces run by Sheriffs. Create any market.  Be the Sheriff.  Trade every(legal)thing.
+          A world of decentralized marketplaces run by Sheriffs. Create any market.  Be the Sheriff.  Trade every(legal)thing. Agents Welcome.
         </p>
 
         {/* How It Works */}
