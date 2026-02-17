@@ -1,5 +1,6 @@
 'use client';
 
+import { useParams } from 'next/navigation'; // For client-side params
 import { useState } from 'react'; // For actionLoading state
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
@@ -128,12 +129,10 @@ interface Market {
   offers: Array<{ id: number; seller: string; amount: number; title: string }>;
 }
 
-export default async function MarketPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const marketId = parseInt(id);
+export default function MarketPage() {
+  const params = useParams();
+  const marketId = parseInt(params.id as string);
   const market = markets.find((m) => m.id === marketId) as Market;
-  const { isConnected, walletState } = useWalletStore(); // Added for address checks
-  const [actionLoading, setActionLoading] = useState<number | null>(null); // For per-offer button loading
 
   if (!market) {
     notFound(); // Next.js 404 if market not found
