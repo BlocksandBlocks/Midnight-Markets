@@ -33,3 +33,5 @@ This scaffold uses the official Midnight brand colors:
 1. Install the Midnight Lace wallet extension
 2. Connect your wallet using the "Connect Midnight" button
 3. Start building your privacy-preserving dApp!
+
+
