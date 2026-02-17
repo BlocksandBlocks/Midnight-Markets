@@ -14,7 +14,7 @@ import { ThemeToggle } from '@/components/theme/theme-toggle';
 import { contractService } from '@/lib/CONTRACT_SERVICE'; // For contract calls
 import { useWalletStore } from '@/lib/stores/walletStore'; // For address
 import { toast } from 'sonner';
-import { useState } from 'react'; // For actionLoading state
+
 
 // Mock markets data (same as /markets page—fetch real from API later)
 const markets = [
