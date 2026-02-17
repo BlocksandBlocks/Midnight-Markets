@@ -14,6 +14,7 @@ import { ThemeToggle } from '@/components/theme/theme-toggle';
 import { contractService } from '@/lib/CONTRACT_SERVICE'; // For contract calls
 import { useWalletStore } from '@/lib/stores/walletStore'; // For address
 import { toast } from 'sonner';
+import { useState } from 'react'; // For actionLoading state
 
 // Mock markets data (same as /markets page—fetch real from API later)
 const markets = [
@@ -133,6 +134,8 @@ export default function MarketPage() {
   const params = useParams();
   const marketId = parseInt(params.id as string);
   const market = markets.find((m) => m.id === marketId) as Market;
+  const { isConnected, walletState } = useWalletStore(); // For address checks
+  const [actionLoading, setActionLoading] = useState<number | null>(null); // For per-offer button loading
 
   if (!market) {
     notFound(); // Next.js 404 if market not found
@@ -164,6 +167,53 @@ export default function MarketPage() {
     }
   };
 
+  const handleSellerClaim = async (offerId: number) => {
+    if (!isConnected) {
+      toast.error('Connect wallet first');
+      return;
+    }
+    setActionLoading(offerId);
+    try {
+      const result = await contractService.callFunction('seller_refund_timeout', [offerId]);
+      if (result.success) {
+        toast.success('Funds claimed!');
+        // Refresh offers
+      } else {
+        toast.error(result.message || 'Claim failed');
+      }
+    } catch (error) {
+      toast.error('Claim failed');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const isTimeout = (status: string) => {
+    // Mock 2-week timeout (real: compare contract current_timestamp to deposit/proof time)
+    return true; // Mock always true for testing—real: Date.now() - timestamp > 1209600000 ms (2 weeks)
+  };
+
+  const handleBuyerRefund = async (offerId: number) => {
+    if (!isConnected) {
+      toast.error('Connect wallet first');
+      return;
+    }
+    setActionLoading(offerId);
+    try {
+      const result = await contractService.callFunction('buyer_refund_timeout', [offerId]);
+      if (result.success) {
+        toast.success('Escrow refunded!');
+        // Refresh offers (e.g., refetch market data)
+      } else {
+        toast.error(result.message || 'Refund failed');
+      }
+    } catch (error) {
+      toast.error('Refund failed');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+  
   const handleSellerClaim = async (offerId: number) => {
     if (!isConnected) {
       toast.error('Connect wallet first');
@@ -251,7 +301,7 @@ export default function MarketPage() {
                 </Link>
               
                 {/* Buyer Refund (silent seller pre-proof) */}
-                {walletState?.address === offer.seller && isTimeout('Accepted') && (
+                {walletState?.address && isTimeout('Accepted') && (
                   <Button 
                     variant="outline" 
                     size="sm" 
@@ -263,7 +313,7 @@ export default function MarketPage() {
                 )}
               
                 {/* Seller Claim (silent sheriff post-proof) */}
-                {walletState?.address === offer.seller && isTimeout('ProofSubmitted') && (
+                {walletState?.address && isTimeout('ProofSubmitted') && (
                   <Button 
                     variant="outline" 
                     size="sm" 
