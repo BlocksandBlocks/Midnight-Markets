@@ -130,10 +130,59 @@ export default async function MarketPage({ params }: { params: Promise<{ id: str
   const { id } = await params;
   const marketId = parseInt(id);
   const market = markets.find((m) => m.id === marketId) as Market;
+  const { isConnected, walletState } = useWalletStore(); // Added for address checks
+  const [actionLoading, setActionLoading] = useState<number | null>(null); // For per-offer button loading
 
   if (!market) {
     notFound(); // Next.js 404 if market not found
   }
+
+  const isTimeout = (status: string) => {
+    // Mock 2-week timeout (real: compare contract current_timestamp to deposit/proof time)
+    return true; // Mock always true for testing—real: Date.now() - timestamp > 1209600000 ms (2 weeks)
+  };
+
+  const handleBuyerRefund = async (offerId: number) => {
+    if (!isConnected) {
+      toast.error('Connect wallet first');
+      return;
+    }
+    setActionLoading(offerId);
+    try {
+      const result = await contractService.callFunction('buyer_refund_timeout', [offerId]);
+      if (result.success) {
+        toast.success('Escrow refunded!');
+        // Refresh offers (e.g., refetch market data)
+      } else {
+        toast.error(result.message || 'Refund failed');
+      }
+    } catch (error) {
+      toast.error('Refund failed');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleSellerClaim = async (offerId: number) => {
+    if (!isConnected) {
+      toast.error('Connect wallet first');
+      return;
+    }
+    setActionLoading(offerId);
+    try {
+      const result = await contractService.callFunction('seller_refund_timeout', [offerId]);
+      if (result.success) {
+        toast.success('Funds claimed!');
+        // Refresh offers
+      } else {
+        toast.error(result.message || 'Claim failed');
+      }
+    } catch (error) {
+      toast.error('Claim failed');
+    } finally {
+      setActionLoading(null);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-midnight-black via-gray-900 to-midnight-blue flex flex-col p-4">
@@ -199,6 +248,30 @@ export default async function MarketPage({ params }: { params: Promise<{ id: str
                 <Link href={`/markets/${marketId}/submit-proof?offerId=${offer.id}`}>
                   <Button variant="secondary" size="sm">Submit Proof</Button>
                 </Link>
+              
+                {/* Buyer Refund (silent seller pre-proof) */}
+                {walletState?.address === offer.seller && isTimeout('Accepted') && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => handleBuyerRefund(offer.id)}
+                    disabled={actionLoading === offer.id}
+                  >
+                    {actionLoading === offer.id ? 'Refunding...' : 'Refund Escrow'}
+                  </Button>
+                )}
+              
+                {/* Seller Claim (silent sheriff post-proof) */}
+                {walletState?.address === offer.seller && isTimeout('ProofSubmitted') && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => handleSellerClaim(offer.id)}
+                    disabled={actionLoading === offer.id}
+                  >
+                    {actionLoading === offer.id ? 'Claiming...' : 'Claim Funds'}
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>
