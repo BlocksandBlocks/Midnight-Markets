@@ -12,7 +12,6 @@ import { useWalletStore } from '@/lib/stores/walletStore';
 import { contractService } from '@/lib/CONTRACT_SERVICE';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
-import { contractService } from '@/lib/CONTRACT_SERVICE'; // For mode read
 
 export default function CreateMarket() {
   const router = useRouter();
