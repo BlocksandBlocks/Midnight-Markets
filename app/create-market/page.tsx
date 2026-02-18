@@ -244,7 +244,6 @@ export default function CreateMarket() {
                 )}
               </div>
               
-              <div>
                 <label className="text-sm font-medium mb-2 block text-gray-300">Sheriff Fee (bps)</label>
                 <Input
                   type="number"
