@@ -40,7 +40,7 @@ export const useWalletStore = create<WalletStore>((set, get) => ({
       }
   
       // Connect with network
-      const connected = await (window.midnight.mnLace as any).connect('preview');
+      const connected = await (window.midnight.mnLace as any).connect('preprod');
       if (!connected) throw new Error('Connect failed');
   
       console.log('Connected object:', connected); // Debug
