@@ -231,13 +231,13 @@ export default function CreateMarket() {
                     value={marketName}
                     onChange={(e) => {
                       setMarketName(e.target.value);
-                      if (sheriffMode === 2) computeHashAndPrice(e.target.value);
+                      computeHashAndPrice(e.target.value);
                     }}
                     placeholder="e.g., 'Sheriff of Reddington Fly Rods LA'"
-                    disabled={loading}
+                    disabled={loading || step > 1}
                     required
                   />
-                  {sheriffMode === 2 && previewPrice > 0 && (
+                  {previewPrice > 0 && (
                     <p className="text-xs text-gray-400 mt-1">
                       Est. Mint Cost: {previewPrice} $NIGHT | {nameAvailable ? 'Available' : 'Taken'}
                     </p>
