@@ -225,24 +225,26 @@ export default function CreateMarket() {
                 </div>
               )}
              <div>
-                  <label className="text-sm font-medium mb-2 block text-gray-300">Market Name</label>
-                  <Input
-                    type="text"
-                    value={marketName}
-                    onChange={(e) => {
-                      setMarketName(e.target.value);
-                      computeHashAndPrice(e.target.value);
-                    }}
-                    placeholder="e.g., 'Sheriff of Reddington Fly Rods LA'"
-                    disabled={loading || step > 1}
-                    required
-                  />
-                  {previewPrice > 0 && (
-                    <p className="text-xs text-gray-400 mt-1">
-                      Est. Mint Cost: {previewPrice} $NIGHT | {nameAvailable ? 'Available' : 'Taken'}
-                    </p>
-                  )}
-                </div>
+                <label className="text-sm font-medium mb-2 block text-gray-300">Market Name</label>
+                <Input
+                  type="text"
+                  value={marketName}
+                  onChange={(e) => {
+                    setMarketName(e.target.value);
+                    computeHashAndPrice(e.target.value);
+                  }}
+                  placeholder="e.g., 'Sheriff of Reddington Fly Rods LA'"
+                  disabled={loading || step > 1}
+                  required
+                />
+                {previewPrice > 0 && (
+                  <p className="text-xs text-gray-400 mt-1">
+                    Est. Mint Cost: {previewPrice} $NIGHT | {nameAvailable ? 'Available' : 'Taken'}
+                  </p>
+                )}
+              </div>
+              
+              <div>
                 <label className="text-sm font-medium mb-2 block text-gray-300">Sheriff Fee (bps)</label>
                 <Input
                   type="number"
