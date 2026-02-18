@@ -243,13 +243,6 @@ export default function CreateMarket() {
                     </p>
                   )}
                 </div>
-                {previewPrice > 0 && (
-                  <p className="text-xs text-gray-400 mt-1">
-                    Est. Mint Cost: {previewPrice} $NIGHT | {nameAvailable ? 'Available' : 'Taken'}
-                  </p>
-                )}
-              </div>
-              <div>
                 <label className="text-sm font-medium mb-2 block text-gray-300">Sheriff Fee (bps)</label>
                 <Input
                   type="number"
