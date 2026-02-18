@@ -14,6 +14,7 @@ enum OfferStatus {
 // Ledger state for the Midnight Markets platform
 export ledger owner_id: Uint<32>; // The owner of the Midnight Markets platform
 export ledger platform_fee_percentage: Uint<64>; // Percentage for the platform owner (e.g., 100 for 1%)
+export ledger sheriff_mode: Uint<8>; // 0 = Free, 1 = Subscription, 2 = NFT mode
 export ledger total_markets: Uint<64>; // Total number of markets created
 export ledger total_offers: Uint<64>; // Total number of offers made across all markets
 export ledger sheriff_names: Map<Bytes<32>, Uint<32>>; // name_hash -> sheriff_nft_id
@@ -43,6 +44,7 @@ constructor(initial_owner_id: Uint<32>, initial_platform_fee: Uint<64>) {
     platform_fee_percentage = disclose(initial_platform_fee);
     total_markets = 0;
     total_offers = 0;
+    sheriff_mode = 0; // Start in Free mode (Season 1)
     total_sheriff_nfts = 0;
 }
 
@@ -258,6 +260,18 @@ export circuit set_platform_fee(
     assert(disclose(new_fee) <= 10000, "Platform fee percentage too high");
 
     platform_fee_percentage = disclose(new_fee);
+    nonce.increment(1);
+}
+
+// Owner-only circuit to change Sheriff mode (0=Free, 1=Subscription, 2=NFT)
+export circuit set_sheriff_mode(
+    new_mode: Uint<8>, // 0=Free, 1=Subscription, 2=NFT
+    caller_id: Uint<32>
+): [] {
+    assert(disclose(caller_id) == owner_id, "Only platform owner can change Sheriff mode");
+    assert(disclose(new_mode) <= 2, "Invalid Sheriff mode");
+
+    sheriff_mode = disclose(new_mode);
     nonce.increment(1);
 }
 
