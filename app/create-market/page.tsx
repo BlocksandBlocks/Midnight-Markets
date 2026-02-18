@@ -70,28 +70,6 @@ export default function CreateMarket() {
   fetchMode();
 }, []);
   
-  const computeHashAndPrice = async (name: string) => {
-  if (!name) return;
-
-  // Hash name (SHA-256 hex for Bytes<32>)
-  const encoder = new TextEncoder();
-  const data = encoder.encode(name);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  setNameHash(hash);
-
-  // Tiered price (base 10 + geo 50 - niche 20/word >3)
-  const wordCount = name.split(' ').length;
-  const isGeo = name.toLowerCase().includes('la') || name.toLowerCase().includes('los angeles');
-  const nicheScore = wordCount > 3 ? (wordCount - 3) * 20 : 0;
-  const geoPremium = isGeo ? 50 : 0;
-  const price = 10 + geoPremium - nicheScore;
-  setPreviewPrice(Math.max(price, 0));
-
-  setNameAvailable(true); // Mock—real contract check
-};
-  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isConnected) {
