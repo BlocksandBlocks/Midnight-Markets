@@ -69,36 +69,36 @@ export default function CreateMarket() {
 }, []);
   
   const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!isConnected) {
-          toast.error('Please connect your wallet first');
-          return;
-        }
-        setLoading(true);
-      
-        try {
-          // Auto Market ID (mock next—real: await contractService.getNextMarketId())
-          const nextMarketId = 1; // Mock; real: from contract total_markets + 1
-      
-          const result = await contractService.callFunction('create_market', [
-            nextMarketId,
-            walletState?.address || 'mock_sheriff', // sheriff_id = caller (free mode)
-            marketName,
-            parseInt(sheriffFee),
-          ]);
-      
-          if (result.success) {
-            toast.success(result.message || 'Market created successfully!');
-            router.push('/markets');
-          } else {
-            toast.error(result.message || 'Market creation failed');
-          }
-        } catch (error) {
-          toast.error(error instanceof Error ? error.message : 'Action failed');
-        } finally {
-          setLoading(false);
-        }
-      };
+    e.preventDefault();
+    if (!isConnected) {
+      toast.error('Please connect your wallet first');
+      return;
+    }
+    setLoading(true);
+  
+    try {
+      // Auto Market ID (mock next—real: await contractService.getNextMarketId())
+      const nextMarketId = 1; // Mock; real: from contract total_markets + 1
+  
+      const result = await contractService.callFunction('create_market', [
+        nextMarketId,
+        walletState?.address || 'mock_sheriff', // sheriff_id = caller (free mode)
+        marketName,
+        parseInt(sheriffFee),
+      ]);
+  
+      if (result.success) {
+        toast.success(result.message || 'Market created successfully!');
+        router.push('/markets');
+      } else {
+        toast.error(result.message || 'Market creation failed');
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Action failed');
+    } finally {
+      setLoading(false);
+    }
+  };
   
       if (step === 2) {
         // Step 2: Create Market with NFT ID
