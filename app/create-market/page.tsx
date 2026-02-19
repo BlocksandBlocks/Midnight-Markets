@@ -221,12 +221,12 @@ export default function CreateMarket() {
                 )}
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block text-gray-300">Sheriff Fee (bps)</label>
+                <label className="text-sm font-medium mb-2 block text-gray-300">Sheriff Fee (%)</label>
                 <Input
                   type="number"
                   value={sheriffFee}
                   onChange={(e) => setSheriffFee(e.target.value)}
-                  placeholder="e.g., 100 (for 1%)"
+                  placeholder="e.g., 1 for 1%"
                   disabled={loading}
                   required
                 />
