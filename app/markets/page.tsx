@@ -17,9 +17,19 @@ export default function Markets() {
       // Fetch from mock state (updates on create)
       const state = contractService.getState();
       // Convert mock maps to array for render (adjust keys as needed)
-      const dynamicMarkets = Array.from(state.market_sheriffs.entries()).map(([id, sheriff_id]) => ({
+      const dynamicMarkets = Object.entries(state.market_sheriffs).map(([idStr, sheriff_id]) => {
+          const id = Number(idStr);
+          return {
+            id,
+            name: state.market_names[id] || 'Unnamed Market',
+            sheriff: `Sheriff ${sheriff_id}`,
+            description: 'Mock description',
+            offersCount: 0,
+            image: '/moon.png',
+          };
+        });
         id: Number(id),
-        name: state.market_names.get(id) || 'Unnamed Market',
+        name: state.market_names[id] || 'Unnamed Market',
         sheriff: `Sheriff ${sheriff_id}`,
         description: 'Mock description',
         offersCount: 0, // Mock—real from offers map
