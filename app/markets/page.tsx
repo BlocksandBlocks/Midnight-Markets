@@ -11,7 +11,14 @@ import { useState, useEffect } from 'react'; // For dynamic markets state
 import { contractService } from '@/lib/CONTRACT_SERVICE'; // For mock state
 
 export default function Markets() {
-    const [markets, setMarkets] = useState<Market[]>([]);
+    const [markets, setMarkets] = useState<Array<{
+      id: number;
+      name: string;
+      sheriff: string;
+      description: string;
+      offersCount: number;
+      image: string;
+    }>>([]);
 
     useEffect(() => {
       // Fetch from mock state (updates on create)
