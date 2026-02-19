@@ -26,12 +26,13 @@ export default function Markets() {
       // Convert mock maps to array for render (adjust keys as needed)
       const dynamicMarkets = Object.entries(state.market_sheriffs).map(([idStr, sheriff_id]) => {
           const id = Number(idStr);
+          const name = state.market_names[id] || `Market ${id}`;
           return {
             id,
-            name: `Market ${id}`, // Mock name (real: from contract market_names map)
+            name,
             sheriff: `Sheriff ${sheriff_id}`,
-            description: 'Mock description',
-            offersCount: 0,
+            description: name, // Use name as description (or add market_descriptions later)
+            offersCount: 0, // Mock—real: count offers per market
             image: '/moon.png',
           };
         });
