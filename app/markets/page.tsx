@@ -28,13 +28,6 @@ export default function Markets() {
             image: '/moon.png',
           };
         });
-        id: Number(id),
-        name: state.market_names[id] || 'Unnamed Market',
-        sheriff: `Sheriff ${sheriff_id}`,
-        description: 'Mock description',
-        offersCount: 0, // Mock—real from offers map
-        image: '/moon.png',
-      }));
       setMarkets(dynamicMarkets);
     }, []);
   return (
