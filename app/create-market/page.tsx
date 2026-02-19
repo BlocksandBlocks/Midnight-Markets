@@ -25,8 +25,6 @@ export default function CreateMarket() {
   const [nameHash, setNameHash] = useState(''); // Computed hash
   const [previewPrice, setPreviewPrice] = useState(0); // Tiered price
   const [nameAvailable, setNameAvailable] = useState(true); // Availability check
-  const [sheriffNftId, setSheriffNftId] = useState(''); // From mint response
-  const [step, setStep] = useState(1); // 1: Name + Preview/Mint, 2: Create with NFT ID
 
   // Auto-populate sheriffId from wallet
   useEffect(() => {
@@ -71,34 +69,36 @@ export default function CreateMarket() {
 }, []);
   
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isConnected) {
-      toast.error('Please connect your wallet first');
-      return;
-    }
-    setLoading(true);
-  
-    try {
-      if (step === 1) {
-        // Step 1: Mint Sheriff NFT
-        await computeHashAndPrice(marketName);
-        const result = await contractService.callFunction('mint_sheriff_nft', [
-          parseInt(sheriffId),
-          nameHash,
-          marketName.split(' ').length,
-          true, // Mock geo
-          2, // Mock niche count
-          previewPrice,
-        ]);
-        if (result.success) {
-          setSheriffNftId(result.data.nft_id || '1');
-          setStep(2);
-          toast.success('Sheriff NFT minted! Now create market.');
-        } else {
-          toast.error(result.message);
+        e.preventDefault();
+        if (!isConnected) {
+          toast.error('Please connect your wallet first');
+          return;
         }
-        return;
-      }
+        setLoading(true);
+      
+        try {
+          // Auto Market ID (mock next—real: await contractService.getNextMarketId())
+          const nextMarketId = 1; // Mock; real: from contract total_markets + 1
+      
+          const result = await contractService.callFunction('create_market', [
+            nextMarketId,
+            walletState?.address || 'mock_sheriff', // sheriff_id = caller (free mode)
+            marketName,
+            parseInt(sheriffFee),
+          ]);
+      
+          if (result.success) {
+            toast.success(result.message || 'Market created successfully!');
+            router.push('/markets');
+          } else {
+            toast.error(result.message || 'Market creation failed');
+          }
+        } catch (error) {
+          toast.error(error instanceof Error ? error.message : 'Action failed');
+        } finally {
+          setLoading(false);
+        }
+      };
   
       if (step === 2) {
         // Step 2: Create Market with NFT ID
@@ -188,19 +188,6 @@ export default function CreateMarket() {
                   className="bg-gray-800/50"
                 />
               </div>
-                {sheriffMode === 2 && (
-                <div>
-                  <label className="text-sm font-medium mb-2 block text-gray-300">Sheriff NFT ID (from mint)</label>
-                  <Input
-                    type="number"
-                    value={sheriffNftId}
-                    onChange={(e) => setSheriffNftId(e.target.value)}
-                    placeholder="e.g., 1"
-                    disabled={loading}
-                    required
-                  />
-                </div>
-              )}
              <div>
                 <label className="text-sm font-medium mb-2 block text-gray-300">Market Name</label>
                 <Input
@@ -241,12 +228,8 @@ export default function CreateMarket() {
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Processing...
                   </>
-                ) : sheriffMode === 0 ? (
-                  'Create Market (Free - Season 1)'
-                ) : sheriffMode === 2 ? (
-                  'Mint Sheriff NFT & Create Market'
                 ) : (
-                  'Create Market' // Subscription mode placeholder
+                  'Create Market (Free - Season 1)'
                 )}
               </Button>
             </form>
