@@ -172,7 +172,7 @@ export default function CreateMarket() {
                     computeHashAndPrice(e.target.value);
                   }}
                   placeholder="e.g., 'Sheriff of Reddington Fly Rods LA'"
-                  disabled={loading || step > 1}
+                  disabled={loading}
                   required
                 />
                 {previewPrice > 0 && (
