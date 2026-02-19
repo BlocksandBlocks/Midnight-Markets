@@ -113,7 +113,8 @@ export default function CreateMarket() {
         ]);
         if (result.success) {
           toast.success(result.message || 'Market created successfully!');
-          router.push('/markets');
+          // Refresh to show new market (mock state updated)
+          router.refresh(); // Or router.push('/markets') + window.location.reload()
         } else {
           toast.error(result.message);
         }
