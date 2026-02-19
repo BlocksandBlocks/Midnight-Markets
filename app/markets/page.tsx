@@ -7,77 +7,26 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { WalletConnect } from '@/components/wallet/WalletConnect';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
-
-// Mock markets data (replace with real API fetch later)
-const markets = [
-  {
-    id: 1,
-    name: 'Cardano/Midnight Dev Work',
-    sheriff: 'SheriffCardano/MidnightDevWork',
-    description: 'Aiken | Plutus | Typescript | Compact, etc',
-    offersCount: 15,
-    image: '/moon.png', // Reuse moon or add category icons
-  },
-  {
-    id: 2,
-    name: 'Freelance Design/Writing Services',
-    sheriff: 'SheriffFreelanceDesign/WritingServices',
-    description: 'Design | Writing | Graphics',
-    offersCount: 28,
-    image: '/moon.png',
-  },
-  {
-    id: 3,
-    name: 'Professional Services',
-    sheriff: 'SheriffProfessionalServices',
-    description: 'Accountants | Attorneys | Bookkeepers | etc',
-    offersCount: 9,
-    image: '/moon.png',
-  },
-  {
-    id: 4,
-    name: 'Home Services',
-    sheriff: 'SheriffHomeServices',
-    description: 'Electricians | Plumbers | HVAC | etc',
-    offersCount: 9,
-    image: '/moon.png',
-  },
-  {
-    id: 5,
-    name: 'Language Lessons',
-    sheriff: 'SheriffZoomLanguageLessons',
-    description: 'Language Lessons over video call.',
-    offersCount: 9,
-    image: '/moon.png',
-  },
-  {
-    id: 6,
-    name: 'Fitness Coaching',
-    sheriff: 'SheriffZoomFitnessCoaching',
-    description: 'Fitness coaching over video call.',
-    offersCount: 9,
-    image: '/moon.png',
-  },
-  {
-    id: 7,
-    name: 'Misc. Zoom Lessons',
-    sheriff: 'SheriffMisc.ZoomLessons',
-    description: 'Guitar | Cooking | Crafts ',
-    offersCount: 9,
-    image: '/moon.png',
-  },
-  {
-    id: 8,
-    name: 'Vibecoding Academy',
-    sheriff: 'SheriffMisc.ZoomLessons',
-    description: 'Vibecode Everything!',
-    offersCount: 9,
-    image: '/moon.png',
-  },
-  // Add more mocks as needed
-];
+import { useState, useEffect } from 'react'; // For dynamic markets state
+import { contractService } from '@/lib/CONTRACT_SERVICE'; // For mock state
 
 export default function Markets() {
+    const [markets, setMarkets] = useState([]); // Dynamic markets from state
+
+    useEffect(() => {
+      // Fetch from mock state (updates on create)
+      const state = contractService.getState();
+      // Convert mock maps to array for render (adjust keys as needed)
+      const dynamicMarkets = Array.from(state.market_sheriffs.entries()).map(([id, sheriff_id]) => ({
+        id: Number(id),
+        name: state.market_names.get(id) || 'Unnamed Market',
+        sheriff: `Sheriff ${sheriff_id}`,
+        description: 'Mock description',
+        offersCount: 0, // Mock—real from offers map
+        image: '/moon.png',
+      }));
+      setMarkets(dynamicMarkets);
+    }, []);
   return (
     <div className="min-h-screen bg-gradient-to-br from-midnight-black via-gray-900 to-midnight-blue flex flex-col items-center p-4">
       {/* Header */}
