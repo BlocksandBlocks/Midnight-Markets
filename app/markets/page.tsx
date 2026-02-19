@@ -21,7 +21,7 @@ export default function Markets() {
           const id = Number(idStr);
           return {
             id,
-            name: state.market_names[id] || 'Unnamed Market',
+            name: `Market ${id}`, // Mock name (real: from contract market_names map)
             sheriff: `Sheriff ${sheriff_id}`,
             description: 'Mock description',
             offersCount: 0,
