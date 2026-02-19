@@ -43,7 +43,7 @@ class ContractService {
             throw new Error("Market ID already exists");
           }
           this.mockState.market_sheriffs[market_id] = sheriff_id;
-          return { success: true, message: `Market ${market_name} created with sheriff fee ${sheriff_fee} bps` };
+          return { success: true, message: `Market ${market_name} created with sheriff fee ${sheriff_fee}%` };
         }
         case 'post_offer': {
           const [offer_id, market_id, seller_id, amount, details_hash] = params as [number, number, number, number, string];
