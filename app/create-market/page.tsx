@@ -99,32 +99,6 @@ export default function CreateMarket() {
       setLoading(false);
     }
   };
-  
-      if (step === 2) {
-        // Step 2: Create Market with NFT ID
-        // Auto Market ID (mock next—real: await contractService.getNextMarketId())
-        const nextMarketId = 1; // Mock; real: from contract total_markets + 1
-        
-        const result = await contractService.callFunction('create_market', [
-          nextMarketId,
-          parseInt(sheriffNftId),
-          marketName,
-          parseInt(sheriffFee),
-        ]);
-        if (result.success) {
-          toast.success(result.message || 'Market created successfully!');
-          // Refresh to show new market (mock state updated)
-          router.refresh(); // Or router.push('/markets') + window.location.reload()
-        } else {
-          toast.error(result.message);
-        }
-      }
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Action failed');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (!isConnected) {
     return (
