@@ -19,7 +19,7 @@ interface MockState {
 class ContractService {
   private mockState: MockState = {
     owner_id: 1,
-    platform_fee_percentage: 100, // 1%
+    platform_fee_percentage: 0, // 0%
     market_sheriffs: {},
     offers: {},
     sheriff_names: {},
