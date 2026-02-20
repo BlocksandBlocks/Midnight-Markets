@@ -199,20 +199,6 @@ export default function CreateMarket() {
                   required
                 />
               </div>
-              {walletState?.address === 'mn_addr_preprod14svvcfsm22emrjml0fr28l3rp0frycej3gpju5qmtl9kz2ecjnaq6c2nlq' && ( // Replace with real owner check
-                <div>
-                  <label className="text-sm font-medium mb-2 block text-gray-300">Platform Fee (%)</label>
-                 <Input
-                   type="number"
-                   step="0.01"
-                   value={platformFee}
-                   onChange={(e) => setPlatformFee(e.target.value)}
-                   placeholder="e.g., 1 for 1%"
-                   disabled={loading}
-                   required
-                 />
-                </div>
-              )}
               <Button
                 type="submit"
                 disabled={loading || !isConnected}
