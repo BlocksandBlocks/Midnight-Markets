@@ -21,11 +21,11 @@ export default function CreateMarket() {
   const [sheriffId, setSheriffId] = useState(''); // Temporary, real from mint
   const [marketName, setMarketName] = useState('');
   const [sheriffFee, setSheriffFee] = useState('');
+  const [platformFee, setPlatformFee] = useState(''); // For owner platform fee set
+  const [sheriffMode, setSheriffMode] = useState(0); // 0=Free, 1=Subscription, 2=NFT
   const [nameHash, setNameHash] = useState(''); // Computed hash
   const [previewPrice, setPreviewPrice] = useState(0); // Tiered price
   const [nameAvailable, setNameAvailable] = useState(true); // Availability check
-  const [sheriffNftId, setSheriffNftId] = useState(''); // From mint response
-  const [step, setStep] = useState(1); // 1: Name + Preview/Mint, 2: Create with NFT ID
 
   // Auto-populate sheriffId from wallet
   useEffect(() => {
@@ -57,6 +57,18 @@ export default function CreateMarket() {
     setNameAvailable(true); // Mock available
   };
 
+  useEffect(() => {
+  const fetchMode = async () => {
+    try {
+      // Mock mode for testing—real: contract read sheriff_mode
+      setSheriffMode(0); // Mock Season 1 free—real: await contractService.getSheriffMode()
+    } catch (error) {
+      console.error('Mode fetch failed');
+    }
+  };
+  fetchMode();
+}, []);
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isConnected) {
@@ -66,49 +78,32 @@ export default function CreateMarket() {
     setLoading(true);
   
     try {
-      if (step === 1) {
-        // Step 1: Mint Sheriff NFT
-        await computeHashAndPrice(marketName);
-        const result = await contractService.callFunction('mint_sheriff_nft', [
-          parseInt(sheriffId),
-          nameHash,
-          marketName.split(' ').length,
-          true, // Mock geo
-          2, // Mock niche count
-          previewPrice,
-        ]);
-        if (result.success) {
-          setSheriffNftId(result.data.nft_id || '1');
-          setStep(2);
-          toast.success('Sheriff NFT minted! Now create market.');
-        } else {
-          toast.error(result.message);
-        }
-        return;
-      }
+      // Auto Market ID (mock next—real: await contractService.getNextMarketId())
+      const nextMarketId = 1; // Mock; real: from contract total_markets + 1
   
-      if (step === 2) {
-        // Step 2: Create Market with NFT ID
-        // Auto Market ID (mock next—real: await contractService.getNextMarketId())
-        const nextMarketId = 1; // Mock; real: from contract total_markets + 1
-        
-        const result = await contractService.callFunction('create_market', [
-          nextMarketId,
-          parseInt(sheriffNftId),
-          marketName,
-          parseInt(sheriffFee),
-        ]);
-        if (result.success) {
-          toast.success(result.message || 'Market created successfully!');
-          router.push('/markets');
-        } else {
-          toast.error(result.message);
-        }
+      const result = await contractService.callFunction('create_market', [
+        nextMarketId,
+        walletState?.address || 'mock_sheriff', // sheriff_id = caller (free mode)
+        marketName,
+        parseInt(sheriffFee),
+      ]);
+  
+      if (result.success) {
+        toast.success(result.message || 'Market created successfully!');
+        router.push('/markets');
+      } else {
+        toast.error(result.message || 'Market creation failed');
       }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Action failed');
     } finally {
       setLoading(false);
+    }
+    // Owner platform fee set
+    if (walletState?.address === 'mn_addr_preprod14svvcfsm22emrjml0fr28l3rp0frycej3gpju5qmtl9kz2ecjnaq6c2nlq' && platformFee) {
+      const feeBps = Math.round(parseFloat(platformFee) * 100);
+      const result = await contractService.callFunction('set_platform_fee', [feeBps, walletState.address]);
+      if (result.success) toast.success(`Platform fee set to ${platformFee}%`);
     }
   };
 
@@ -170,24 +165,11 @@ export default function CreateMarket() {
                 <Input
                   type="text"
                   value={marketId}
-                  disabled // Read-only
+                  disabled
                   className="bg-gray-800/50"
                 />
               </div>
-              {step === 2 && (
-                <div>
-                  <label className="text-sm font-medium mb-2 block text-gray-300">Sheriff NFT ID (from mint)</label>
-                  <Input
-                    type="number"
-                    value={sheriffNftId}
-                    onChange={(e) => setSheriffNftId(e.target.value)}
-                    placeholder="e.g., 1"
-                    disabled={loading}
-                    required
-                  />
-                </div>
-              )}
-              <div>
+             <div>
                 <label className="text-sm font-medium mb-2 block text-gray-300">Market Name</label>
                 <Input
                   type="text"
@@ -197,7 +179,7 @@ export default function CreateMarket() {
                     computeHashAndPrice(e.target.value);
                   }}
                   placeholder="e.g., 'Sheriff of Reddington Fly Rods LA'"
-                  disabled={loading || step > 1}
+                  disabled={loading}
                   required
                 />
                 {previewPrice > 0 && (
@@ -207,16 +189,30 @@ export default function CreateMarket() {
                 )}
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block text-gray-300">Sheriff Fee (bps)</label>
+                <label className="text-sm font-medium mb-2 block text-gray-300">Sheriff Fee (%)</label>
                 <Input
                   type="number"
                   value={sheriffFee}
                   onChange={(e) => setSheriffFee(e.target.value)}
-                  placeholder="e.g., 100 (for 1%)"
+                  placeholder="e.g., 1 for 1%"
                   disabled={loading}
                   required
                 />
               </div>
+              {walletState?.address === 'mn_addr_preprod14svvcfsm22emrjml0fr28l3rp0frycej3gpju5qmtl9kz2ecjnaq6c2nlq' && ( // Replace with real owner check
+                <div>
+                  <label className="text-sm font-medium mb-2 block text-gray-300">Platform Fee (%)</label>
+                 <Input
+                   type="number"
+                   step="0.01"
+                   value={platformFee}
+                   onChange={(e) => setPlatformFee(e.target.value)}
+                   placeholder="e.g., 1 for 1%"
+                   disabled={loading}
+                   required
+                 />
+                </div>
+              )}
               <Button
                 type="submit"
                 disabled={loading || !isConnected}
@@ -227,13 +223,53 @@ export default function CreateMarket() {
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Processing...
                   </>
-                ) : step === 1 ? (
-                  'Mint Sheriff NFT'
                 ) : (
-                  'Create Market'
+                  'Create Market (Free - Season 1)'
                 )}
               </Button>
             </form>
+
+            {walletState?.address === 'mn_addr_preprod14svvcfsm22emrjml0fr28l3rp0frycej3gpju5qmtl9kz2ecjnaq6c2nlq' && (
+              <div className="mt-8 pt-8 border-t border-gray-700">
+                <h3 className="text-lg font-medium mb-4 text-white">Owner: Set Platform Fee</h3>
+                <div className="flex space-x-4 items-end">
+                  <div className="flex-1">
+                    <label className="text-sm font-medium mb-2 block text-gray-300">Platform Fee (%)</label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={platformFee}
+                      onChange={(e) => setPlatformFee(e.target.value)}
+                      placeholder="e.g., 1 for 1%"
+                      className="w-full"
+                    />
+                  </div>
+                  <Button 
+                    onClick={async () => {
+                      if (!platformFee) return toast.error('Enter a fee');
+                      setLoading(true);
+                      try {
+                        const feeBps = Math.round(parseFloat(platformFee) * 100);
+                        const result = await contractService.callFunction('set_platform_fee', [feeBps, walletState?.address]);
+                        if (result.success) {
+                          toast.success(`Platform fee set to ${platformFee}%`);
+                          setPlatformFee(''); // Clear input
+                        } else {
+                          toast.error(result.message || 'Fee set failed');
+                        }
+                      } catch (error) {
+                        toast.error('Fee set failed');
+                      } finally {
+                        setLoading(false);
+                      }
+                    }}
+                    disabled={loading}
+                  >
+                    {loading ? 'Setting...' : 'Set Platform Fee'}
+                  </Button>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </main>

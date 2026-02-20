@@ -43,7 +43,7 @@ class ContractService {
             throw new Error("Market ID already exists");
           }
           this.mockState.market_sheriffs[market_id] = sheriff_id;
-          return { success: true, message: `Market ${market_name} created with sheriff fee ${sheriff_fee} bps` };
+          return { success: true, message: `Market ${market_name} created with sheriff fee ${sheriff_fee}%` };
         }
         case 'post_offer': {
           const [offer_id, market_id, seller_id, amount, details_hash] = params as [number, number, number, number, string];
@@ -66,9 +66,10 @@ class ContractService {
         }
         case 'set_platform_fee': {
           const [new_fee, owner_id] = params as [number, number];
-          if (owner_id !== this.mockState.owner_id) {
-            throw new Error("Unauthorized: Only owner can set fee");
-          }
+          // Mock allow any caller for testing—real: check owner_id
+          // if (owner_id !== this.mockState.owner_id) {
+          //   throw new Error("Unauthorized: Only owner can set fee");
+          // }
           this.mockState.platform_fee_percentage = new_fee;
           return { success: true, message: `Platform fee set to ${new_fee} bps by owner ${owner_id}` };
         }

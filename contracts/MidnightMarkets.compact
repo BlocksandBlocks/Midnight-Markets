@@ -14,6 +14,7 @@ enum OfferStatus {
 // Ledger state for the Midnight Markets platform
 export ledger owner_id: Uint<32>; // The owner of the Midnight Markets platform
 export ledger platform_fee_percentage: Uint<64>; // Percentage for the platform owner (e.g., 100 for 1%)
+export ledger sheriff_mode: Uint<8>; // 0 = Free, 1 = Subscription, 2 = NFT mode
 export ledger total_markets: Uint<64>; // Total number of markets created
 export ledger total_offers: Uint<64>; // Total number of offers made across all markets
 export ledger sheriff_names: Map<Bytes<32>, Uint<32>>; // name_hash -> sheriff_nft_id
@@ -43,6 +44,7 @@ constructor(initial_owner_id: Uint<32>, initial_platform_fee: Uint<64>) {
     platform_fee_percentage = disclose(initial_platform_fee);
     total_markets = 0;
     total_offers = 0;
+    sheriff_mode = 0; // Start in Free mode (Season 1)
     total_sheriff_nfts = 0;
 }
 
@@ -52,32 +54,40 @@ constructor(initial_owner_id: Uint<32>, initial_platform_fee: Uint<64>) {
 // witness validate_proof_details(proof_data: Bytes<32>): [Bytes<32>];
 // witness authorize_sheriff_action(sheriff_id: Uint<32>, market_id: Uint<32>, secret: Bytes<32>): [Boolean];
 
-// Batch circuit: Mint Sheriff NFT + Create Market in one txn
 export circuit create_market_with_mint(
     market_id: Uint<32>,
-    name_hash: Bytes<32>, // SHA-256 hash of full market name
-    word_count: Uint<8>, // Number of words for specificity
-    is_geo_specific: Boolean, // True for geo premium
-    niche_keywords_count: Uint<8>, // Niche discount count
-    payment_amount: Uint<64>, // Payment for NFT mint
+    name_hash: Bytes<32>, // SHA-256 hash of full market name (used in NFT mode)
+    word_count: Uint<8>, // Number of words for specificity (NFT mode)
+    is_geo_specific: Boolean, // True for geo premium (NFT mode)
+    niche_keywords_count: Uint<8>, // Niche discount count (NFT mode)
+    payment_amount: Uint<64>, // Payment for NFT mint (NFT mode)
     market_name: Bytes<32>, // Plain name for storage
-    sheriff_fee: Uint<64> // Sheriff's fee percentage
+    sheriff_fee: Uint<64>, // Sheriff's fee percentage
+    caller_id: Uint<32> // Caller ID (for free/sub mode sheriff_id)
 ): [] {
-    // Uniqueness + pricing from mint
-    assert(!sheriff_names.member(disclose(name_hash)), "Market name already taken");
+    let sheriff_nft_id: Uint<32>;
 
-    const base_fee = 10 as Uint<64>;
-    const geo_premium = if disclose(is_geo_specific) { 50 as Uint<64> } else { 0 as Uint<64> };
-    const niche_discount = (disclose(niche_keywords_count) * 20 as Uint<64>) as Uint<64>;
-    const calculated_price = (base_fee + geo_premium - niche_discount) as Uint<64>;
-    assert(disclose(payment_amount) >= calculated_price, "Payment insufficient for tiered price");
+    if (sheriff_mode == 2) { // NFT mode: Full mint logic
+        // Uniqueness + pricing from mint
+        assert(!sheriff_names.member(disclose(name_hash)), "Market name already taken");
 
-    // Auto-mint Sheriff NFT ID
-    const sheriff_nft_id = (total_sheriff_nfts + 1) as Uint<32>;
-    sheriff_names.insert(disclose(name_hash), disclose(sheriff_nft_id));
-    total_sheriff_nfts = (total_sheriff_nfts + 1) as Uint<64>;
+        const base_fee = 10 as Uint<64>;
+        const geo_premium = if disclose(is_geo_specific) { 50 as Uint<64> } else { 0 as Uint<64> };
+        const niche_discount = (disclose(niche_keywords_count) * 20 as Uint<64>) as Uint<64>;
+        const calculated_price = (base_fee + geo_premium - niche_discount) as Uint<64>;
+        assert(disclose(payment_amount) >= calculated_price, "Payment insufficient for tiered price");
 
-    // Create market
+        // Auto-mint Sheriff NFT ID
+        sheriff_nft_id = (total_sheriff_nfts + 1) as Uint<32>;
+        sheriff_names.insert(disclose(name_hash), disclose(sheriff_nft_id));
+        total_sheriff_nfts = (total_sheriff_nfts + 1) as Uint<64>;
+    } else {
+        // Free or Subscription mode: No NFT mint, sheriff_id = caller
+        sheriff_nft_id = disclose(caller_id);
+        // Future subscription: Add payment check here (e.g., assert(payment_amount >= monthly_fee))
+    }
+
+    // Create market (common to all modes)
     assert(!market_sheriffs.member(disclose(market_id)), "Market ID already exists");
     assert(disclose(sheriff_fee) <= 10000, "Sheriff fee percentage too high");
 
@@ -258,6 +268,18 @@ export circuit set_platform_fee(
     assert(disclose(new_fee) <= 10000, "Platform fee percentage too high");
 
     platform_fee_percentage = disclose(new_fee);
+    nonce.increment(1);
+}
+
+// Owner-only circuit to change Sheriff mode (0=Free, 1=Subscription, 2=NFT)
+export circuit set_sheriff_mode(
+    new_mode: Uint<8>, // 0=Free, 1=Subscription, 2=NFT
+    caller_id: Uint<32>
+): [] {
+    assert(disclose(caller_id) == owner_id, "Only platform owner can change Sheriff mode");
+    assert(disclose(new_mode) <= 2, "Invalid Sheriff mode");
+
+    sheriff_mode = disclose(new_mode);
     nonce.increment(1);
 }
 
