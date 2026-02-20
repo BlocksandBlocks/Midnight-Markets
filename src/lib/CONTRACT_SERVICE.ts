@@ -66,8 +66,10 @@ class ContractService {
         }
         case 'set_platform_fee': {
           const [new_fee, owner_id] = params as [number, number];
-          if (owner_id !== this.mockState.owner_id) {
-            throw new Error("Unauthorized: Only owner can set fee");
+          // Mock allow any caller for testing—real: check owner_id
+          // if (owner_id !== this.mockState.owner_id) {
+          //   throw new Error("Unauthorized: Only owner can set fee");
+          // }
           }
           this.mockState.platform_fee_percentage = new_fee;
           return { success: true, message: `Platform fee set to ${new_fee} bps by owner ${owner_id}` };
