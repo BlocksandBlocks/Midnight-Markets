@@ -53,7 +53,7 @@ export const CONTRACT_CONFIG = {
   },
   mockState: {
     owner_id: 1,
-    platform_fee_percentage: 100, // 1%
+    platform_fee_percentage: 0, // 0%
     total_markets: 0,
     total_offers: 0,
     market_sheriffs: {},
