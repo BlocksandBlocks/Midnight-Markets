@@ -21,6 +21,7 @@ export default function CreateMarket() {
   const [sheriffId, setSheriffId] = useState(''); // Temporary, real from mint
   const [marketName, setMarketName] = useState('');
   const [sheriffFee, setSheriffFee] = useState('');
+  const [platformFee, setPlatformFee] = useState(''); // For owner platform fee set
   const [sheriffMode, setSheriffMode] = useState(0); // 0=Free, 1=Subscription, 2=NFT
   const [nameHash, setNameHash] = useState(''); // Computed hash
   const [previewPrice, setPreviewPrice] = useState(0); // Tiered price
@@ -99,7 +100,7 @@ export default function CreateMarket() {
       setLoading(false);
     }
     // Owner platform fee set (example)
-      if (walletState?.address === 'your_owner_address_here' && platformFee) {
+      if (walletState?.address === 'mn_addr_preprod14svvcfsm22emrjml0fr28l3rp0frycej3gpju5qmtl9kz2ecjnaq6c2nlq' && platformFee) {
         const result = await contractService.callFunction('set_platform_fee', [
           Math.round(parseFloat(platformFee) * 100), // % to bps
           walletState.address,
@@ -200,16 +201,18 @@ export default function CreateMarket() {
                   required
                 />
               </div>
-              {walletState?.address === 'your_owner_address_here' && ( // Replace with real owner check
+              {walletState?.address === 'mn_addr_preprod14svvcfsm22emrjml0fr28l3rp0frycej3gpju5qmtl9kz2ecjnaq6c2nlq' && ( // Replace with real owner check
                 <div>
                   <label className="text-sm font-medium mb-2 block text-gray-300">Platform Fee (%)</label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    placeholder="e.g., 1 for 1%"
-                    // Add state/value/onChange for platformFee
-                    required
-                  />
+                 <Input
+                   type="number"
+                   step="0.01"
+                   value={platformFee}
+                   onChange={(e) => setPlatformFee(e.target.value)}
+                   placeholder="e.g., 1 for 1%"
+                   disabled={loading}
+                   required
+                 />
                 </div>
               )}
               <Button
