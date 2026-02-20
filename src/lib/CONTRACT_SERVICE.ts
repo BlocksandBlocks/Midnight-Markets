@@ -70,7 +70,6 @@ class ContractService {
           // if (owner_id !== this.mockState.owner_id) {
           //   throw new Error("Unauthorized: Only owner can set fee");
           // }
-          }
           this.mockState.platform_fee_percentage = new_fee;
           return { success: true, message: `Platform fee set to ${new_fee} bps by owner ${owner_id}` };
         }
