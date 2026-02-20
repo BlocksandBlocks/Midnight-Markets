@@ -262,10 +262,9 @@ export default function CreateMarket() {
                       }
                     }}
                     disabled={loading}
-                   >
+                  >
                     {loading ? 'Setting...' : 'Set Platform Fee'}
                   </Button>
-                </div>
               </div>
             )}
           </CardContent>
