@@ -9,8 +9,15 @@ import { WalletConnect } from '@/components/wallet/WalletConnect';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
 import { useState, useEffect } from 'react'; // For dynamic markets state
 import { contractService } from '@/lib/CONTRACT_SERVICE'; // For mock state
+import { useWalletStore } from '@/lib/stores/walletStore';
+import { toast } from 'sonner';
+
+const OWNER_WALLET_ADDRESS = 'mn_addr_preprod14svvcfsm22emrjml0fr28l3rp0frycej3gpju5qmtl9kz2ecjnaq6c2nlq';
+const HIDDEN_MARKETS_STORAGE_KEY = 'nightmode.hiddenMarkets';
 
 export default function Markets() {
+    const { walletState } = useWalletStore();
+    const isOwner = walletState?.address === OWNER_WALLET_ADDRESS;
     const [markets, setMarkets] = useState<Array<{
       id: number;
       name: string;
@@ -19,6 +26,19 @@ export default function Markets() {
       offersCount: number;
       image: string;
     }>>([]);
+    const [hiddenMarketIds, setHiddenMarketIds] = useState<number[]>([]);
+
+    useEffect(() => {
+      const storedHiddenMarkets = localStorage.getItem(HIDDEN_MARKETS_STORAGE_KEY);
+      if (!storedHiddenMarkets) return;
+
+      try {
+        const parsed = JSON.parse(storedHiddenMarkets) as number[];
+        setHiddenMarketIds(parsed);
+      } catch {
+        setHiddenMarketIds([]);
+      }
+    }, []);
 
     useEffect(() => {
       // Fetch from mock state (updates on create)
@@ -38,6 +58,30 @@ export default function Markets() {
         });
       setMarkets(dynamicMarkets);
     }, []);
+
+    const updateHiddenMarkets = (ids: number[]) => {
+      setHiddenMarketIds(ids);
+      localStorage.setItem(HIDDEN_MARKETS_STORAGE_KEY, JSON.stringify(ids));
+    };
+
+    const toggleMarketHidden = (marketId: number, currentlyHidden: boolean) => {
+      if (!isOwner) return;
+
+      if (currentlyHidden) {
+        const next = hiddenMarketIds.filter((id) => id !== marketId);
+        updateHiddenMarkets(next);
+        toast.success(`Market ${marketId} restored`);
+      } else {
+        const next = [...hiddenMarketIds, marketId];
+        updateHiddenMarkets(next);
+        toast.success(`Market ${marketId} hidden from frontend`);
+      }
+    };
+
+    const visibleMarkets = isOwner
+      ? markets
+      : markets.filter((market) => !hiddenMarketIds.includes(market.id));
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-midnight-black via-gray-900 to-midnight-blue flex flex-col items-center p-4">
       {/* Header */}
@@ -64,7 +108,10 @@ export default function Markets() {
 
       {/* Markets Grid */}
       <main className="flex-grow w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-8">
-        {markets.map((market) => (
+        {visibleMarkets.map((market) => {
+          const isHidden = hiddenMarketIds.includes(market.id);
+
+          return (
           <Link key={market.id} href={`/markets/${market.id}`}>
             <Card className="bg-gray-900/50 text-white border border-gray-700/50 backdrop-blur-sm hover:border-midnight-blue/70 transition-all cursor-pointer">
               <CardHeader className="pb-4">
@@ -83,18 +130,33 @@ export default function Markets() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-0">
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center mb-3">
                   <Badge variant="secondary" className="text-xs">
                     Sheriff: {market.sheriff}
                   </Badge>
-                  <Badge variant="outline" className="text-xs">
-                    {market.offersCount} Offers
+                  <Badge variant={isHidden ? 'destructive' : 'outline'} className="text-xs">
+                    {isHidden ? 'Hidden' : `${market.offersCount} Offers`}
                   </Badge>
                 </div>
+
+                {isOwner && (
+                  <Button
+                    variant={isHidden ? 'secondary' : 'destructive'}
+                    size="sm"
+                    className="w-full"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      toggleMarketHidden(market.id, isHidden);
+                    }}
+                  >
+                    {isHidden ? 'Unhide Market' : 'Hide Market'}
+                  </Button>
+                )}
               </CardContent>
             </Card>
           </Link>
-        ))}
+        )})}
       </main>
 
       {/* Footer */}
