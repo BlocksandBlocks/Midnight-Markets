@@ -1,7 +1,7 @@
 'use client';
 
 import { useParams } from 'next/navigation'; // For client-side params
-import { useState } from 'react'; // For actionLoading state
+import { useEffect, useState } from 'react'; // For actionLoading state
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -9,12 +9,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { WalletConnect } from '@/components/wallet/WalletConnect';
-import { NetworkStatus } from '@/components/network/NetworkStatus';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
 import { contractService } from '@/lib/CONTRACT_SERVICE'; // For contract calls
 import { useWalletStore } from '@/lib/stores/walletStore'; // For address
 import { toast } from 'sonner';
 
+const OWNER_WALLET_ADDRESS = 'mn_addr_preprod14svvcfsm22emrjml0fr28l3rp0frycej3gpju5qmtl9kz2ecjnaq6c2nlq';
+const HIDDEN_OFFERS_STORAGE_KEY = 'nightmode.hiddenOffers';
 
 // Mock markets data (same as /markets page—fetch real from API later)
 const markets = [
@@ -136,10 +137,52 @@ export default function MarketPage() {
   const market = markets.find((m) => m.id === marketId) as Market;
   const { isConnected, walletState } = useWalletStore(); // For address checks
   const [actionLoading, setActionLoading] = useState<number | null>(null); // For per-offer button loading
+  const [hiddenOfferIds, setHiddenOfferIds] = useState<number[]>([]);
+
+  const isOwner = walletState?.address === OWNER_WALLET_ADDRESS;
+  const state = contractService.getState();
+  const marketSheriff = state.market_sheriffs[marketId];
+  const isSheriff = Boolean(walletState?.address && marketSheriff && String(marketSheriff) === walletState.address);
+  const canModerateOffers = isOwner || isSheriff;
 
   if (!market) {
     notFound(); // Next.js 404 if market not found
   }
+
+  useEffect(() => {
+    const storedHiddenOffers = localStorage.getItem(HIDDEN_OFFERS_STORAGE_KEY);
+    if (!storedHiddenOffers) return;
+
+    try {
+      const parsed = JSON.parse(storedHiddenOffers) as number[];
+      setHiddenOfferIds(parsed);
+    } catch {
+      setHiddenOfferIds([]);
+    }
+  }, []);
+
+  const updateHiddenOffers = (ids: number[]) => {
+    setHiddenOfferIds(ids);
+    localStorage.setItem(HIDDEN_OFFERS_STORAGE_KEY, JSON.stringify(ids));
+  };
+
+  const toggleOfferHidden = (offerId: number, currentlyHidden: boolean) => {
+    if (!canModerateOffers) return;
+
+    if (currentlyHidden) {
+      const next = hiddenOfferIds.filter((id) => id !== offerId);
+      updateHiddenOffers(next);
+      toast.success(`Offer ${offerId} restored`);
+    } else {
+      const next = [...hiddenOfferIds, offerId];
+      updateHiddenOffers(next);
+      toast.success(`Offer ${offerId} hidden from frontend`);
+    }
+  };
+
+  const visibleOffers = canModerateOffers
+    ? market.offers
+    : market.offers.filter((offer) => !hiddenOfferIds.includes(offer.id));
 
   const isTimeout = (status: string) => {
     // Mock 2-week timeout (real: compare contract current_timestamp to deposit/proof time)
@@ -233,7 +276,10 @@ export default function MarketPage() {
       {/* Offers List with Per-Offer Buttons */}
       <main className="flex-grow w-full max-w-6xl grid grid-cols-1 gap-6 pb-8">
         <h2 className="text-2xl font-bold text-white col-span-full">Active Offers</h2>
-        {market.offers.map((offer) => (
+        {visibleOffers.map((offer) => {
+          const isHidden = hiddenOfferIds.includes(offer.id);
+
+          return (
           <Card key={offer.id} className="bg-gray-900/50 text-white border border-gray-700/50">
             <CardHeader className="pb-4">
               <CardTitle className="text-lg">{offer.title}</CardTitle>
@@ -276,10 +322,21 @@ export default function MarketPage() {
                     {actionLoading === offer.id ? 'Claiming...' : 'Claim Funds'}
                   </Button>
                 )}
+
+                {canModerateOffers && (
+                  <Button
+                    variant={isHidden ? 'secondary' : 'destructive'}
+                    size="sm"
+                    onClick={() => toggleOfferHidden(offer.id, isHidden)}
+                  >
+                    {isHidden ? 'Unhide Offer' : 'Hide Offer'}
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>
-        ))}
+        );
+        })}
       </main>
 
       {/* Footer */}
