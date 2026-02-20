@@ -23,6 +23,10 @@ export ledger nonce: Counter; // General purpose nonce for state changes
 export ledger offer_deposit_timestamps: Map<Uint<32>, Timestamp>; // offer_id -> timestamp of accept_offer
 export ledger offer_proof_timestamps: Map<Uint<32>, Timestamp>; // offer_id -> timestamp of submit_proof
 
+// Moderation state (global, on-chain)
+export ledger market_hidden: Map<Uint<32>, Boolean>; // market_id -> hidden status
+export ledger offer_hidden: Map<Uint<32>, Boolean>; // offer_id -> hidden status
+
 // Maps to store market-specific data
 export ledger market_sheriffs: Map<Uint<32>, Uint<32>>; // market_id -> sheriff_id (NFT holder)
 export ledger market_names: Map<Uint<32>, Bytes<32>>; // market_id -> market_name (arbitrary name designated by Sheriff)
@@ -95,6 +99,7 @@ export circuit create_market_with_mint(
     market_names.insert(disclose(market_id), disclose(market_name));
     market_escrow_balances.insert(disclose(market_id), 0 as Uint<64>);
     market_sheriff_fee_percentage.insert(disclose(market_id), disclose(sheriff_fee));
+    market_hidden.insert(disclose(market_id), false);
 
     total_markets = (total_markets + 1) as Uint<64>;
     nonce.increment(1);
@@ -110,6 +115,10 @@ export circuit post_offer(
 ): [] {
     // Ensure market exists
     assert(market_sheriffs.member(disclose(market_id)), "Market does not exist");
+    // Ensure market is not hidden
+    if (market_hidden.member(disclose(market_id))) {
+        assert(!market_hidden.lookup(disclose(market_id)), "Market is hidden");
+    }
     // Ensure offer_id is unique
     assert(!offers.member(disclose(offer_id)), "Offer ID already exists");
     // Ensure amount is positive
@@ -120,6 +129,7 @@ export circuit post_offer(
     offer_seller_ids.insert(disclose(offer_id), disclose(seller_id));
     offer_amounts.insert(disclose(offer_id), disclose(amount));
     offer_details_hashes.insert(disclose(offer_id), disclose(offer_details_hash));
+    offer_hidden.insert(disclose(offer_id), false);
 
     total_offers = (total_offers + 1) as Uint<64>;
     nonce.increment(1);
@@ -135,8 +145,16 @@ export circuit accept_offer(
     // Ensure offer exists and is open
     assert(offers.member(disclose(offer_id)), "Offer does not exist");
     assert(offers.lookup(disclose(offer_id)) == OfferStatus.Open, "Offer is not open for acceptance");
+    // Ensure offer is not hidden
+    if (offer_hidden.member(disclose(offer_id))) {
+        assert(!offer_hidden.lookup(disclose(offer_id)), "Offer is hidden");
+    }
     // Ensure market exists
     assert(market_sheriffs.member(disclose(market_id)), "Market does not exist");
+    // Ensure market is not hidden
+    if (market_hidden.member(disclose(market_id))) {
+        assert(!market_hidden.lookup(disclose(market_id)), "Market is hidden");
+    }
     // Ensure deposited amount matches offer amount
     assert(disclose(deposited_amount) == offer_amounts.lookup(disclose(offer_id)), "Deposited amount does not match offer amount");
 
@@ -160,6 +178,10 @@ export circuit submit_proof(
     // Ensure offer exists and is accepted
     assert(offers.member(disclose(offer_id)), "Offer does not exist");
     assert(offers.lookup(disclose(offer_id)) == OfferStatus.Accepted, "Offer is not in accepted state");
+    // Ensure offer is not hidden
+    if (offer_hidden.member(disclose(offer_id))) {
+        assert(!offer_hidden.lookup(disclose(offer_id)), "Offer is hidden");
+    }
     // Ensure only the seller can submit proof
     assert(offer_seller_ids.lookup(disclose(offer_id)) == disclose(seller_id), "Only the seller can submit proof");
 
@@ -227,8 +249,16 @@ export circuit release_funds(
     // Ensure offer exists and proof has been submitted
     assert(offers.member(disclose(offer_id)), "Offer does not exist");
     assert(offers.lookup(disclose(offer_id)) == OfferStatus.ProofSubmitted, "Proof has not been submitted for this offer");
+    // Ensure offer is not hidden
+    if (offer_hidden.member(disclose(offer_id))) {
+        assert(!offer_hidden.lookup(disclose(offer_id)), "Offer is hidden");
+    }
     // Ensure the market ID matches the offer's market
     assert(offer_market_ids.lookup(disclose(offer_id)) == disclose(market_id), "Offer does not belong to this market");
+    // Ensure market is not hidden
+    if (market_hidden.member(disclose(market_id))) {
+        assert(!market_hidden.lookup(disclose(market_id)), "Market is hidden");
+    }
     // Ensure the authorizing sheriff is the market's sheriff
     assert(market_sheriffs.lookup(disclose(market_id)) == disclose(sheriff_id), "Only the designated Sheriff can release funds for this market");
 
@@ -280,6 +310,47 @@ export circuit set_sheriff_mode(
     assert(disclose(new_mode) <= 2, "Invalid Sheriff mode");
 
     sheriff_mode = disclose(new_mode);
+    nonce.increment(1);
+}
+
+// Owner-only moderation: hide/unhide a market globally
+export circuit set_market_hidden(
+    market_id: Uint<32>,
+    hidden: Boolean,
+    caller_id: Uint<32>
+): [] {
+    assert(disclose(caller_id) == owner_id, "Only platform owner can moderate markets");
+    assert(market_sheriffs.member(disclose(market_id)), "Market does not exist");
+
+    market_hidden.insert(disclose(market_id), disclose(hidden));
+    nonce.increment(1);
+}
+
+// Owner-only moderation: hide/unhide an offer globally
+export circuit set_offer_hidden(
+    offer_id: Uint<32>,
+    hidden: Boolean,
+    caller_id: Uint<32>
+): [] {
+    assert(disclose(caller_id) == owner_id, "Only platform owner can moderate offers");
+    assert(offers.member(disclose(offer_id)), "Offer does not exist");
+
+    offer_hidden.insert(disclose(offer_id), disclose(hidden));
+    nonce.increment(1);
+}
+
+// Sheriff moderation: hide/unhide an offer in sheriff's own market
+export circuit set_offer_hidden_by_sheriff(
+    offer_id: Uint<32>,
+    market_id: Uint<32>,
+    sheriff_id: Uint<32>,
+    hidden: Boolean
+): [] {
+    assert(offers.member(disclose(offer_id)), "Offer does not exist");
+    assert(offer_market_ids.lookup(disclose(offer_id)) == disclose(market_id), "Offer does not belong to this market");
+    assert(market_sheriffs.lookup(disclose(market_id)) == disclose(sheriff_id), "Only designated sheriff can moderate offers in this market");
+
+    offer_hidden.insert(disclose(offer_id), disclose(hidden));
     nonce.increment(1);
 }
 
