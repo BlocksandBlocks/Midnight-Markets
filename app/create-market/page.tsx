@@ -230,6 +230,47 @@ export default function CreateMarket() {
                 )}
               </Button>
             </form>
+              {walletState?.address === 'mn_addr_preprod14svvcfsm22emrjml0fr28l3rp0frycej3gpju5qmtl9kz2ecjnaq6c2nlq' && (
+              <div className="mt-8 pt-8 border-t border-gray-700">
+                <h3 className="text-lg font-medium mb-4 text-white">Owner: Set Platform Fee</h3>
+                <div className="flex space-x-4 items-end">
+                  <div className="flex-1">
+                    <label className="text-sm font-medium mb-2 block text-gray-300">Platform Fee (%)</label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={platformFee}
+                      onChange={(e) => setPlatformFee(e.target.value)}
+                      placeholder="e.g., 1 for 1%"
+                      className="w-full"
+                    />
+                  </div>
+                  <Button 
+                    onClick={async () => {
+                      if (!platformFee) return toast.error('Enter a fee');
+                      setLoading(true);
+                      try {
+                        const feeBps = Math.round(parseFloat(platformFee) * 100);
+                        const result = await contractService.callFunction('set_platform_fee', [feeBps, walletState?.address]);
+                        if (result.success) {
+                          toast.success(`Platform fee set to ${platformFee}%`);
+                          setPlatformFee(''); // Clear input
+                        } else {
+                          toast.error(result.message || 'Fee set failed');
+                        }
+                      } catch (error) {
+                        toast.error('Fee set failed');
+                      } finally {
+                        setLoading(false);
+                      }
+                    }}
+                    disabled={loading}
+                  >
+                    {loading ? 'Setting...' : 'Set Platform Fee'}
+                  </Button>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </main>
