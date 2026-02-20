@@ -265,6 +265,7 @@ export default function CreateMarket() {
                   >
                     {loading ? 'Setting...' : 'Set Platform Fee'}
                   </Button>
+                </div> 
               </div>
             )}
           </CardContent>
