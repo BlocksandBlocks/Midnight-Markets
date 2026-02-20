@@ -98,6 +98,14 @@ export default function CreateMarket() {
     } finally {
       setLoading(false);
     }
+    // Owner platform fee set (example)
+      if (walletState?.address === 'your_owner_address_here' && platformFee) {
+        const result = await contractService.callFunction('set_platform_fee', [
+          Math.round(parseFloat(platformFee) * 100), // % to bps
+          walletState.address,
+        ]);
+        if (result.success) toast.success(`Platform fee set to ${platformFee}%`);
+      }
   };
 
   if (!isConnected) {
@@ -192,6 +200,18 @@ export default function CreateMarket() {
                   required
                 />
               </div>
+              {walletState?.address === 'your_owner_address_here' && ( // Replace with real owner check
+                <div>
+                  <label className="text-sm font-medium mb-2 block text-gray-300">Platform Fee (%)</label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    placeholder="e.g., 1 for 1%"
+                    // Add state/value/onChange for platformFee
+                    required
+                  />
+                </div>
+              )}
               <Button
                 type="submit"
                 disabled={loading || !isConnected}
