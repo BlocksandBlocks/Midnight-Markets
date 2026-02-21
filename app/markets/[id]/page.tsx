@@ -235,7 +235,7 @@ export default function MarketPage() {
                     onClick={() => handleBuyerRefund(offer.id)}
                     disabled={actionLoading === offer.id}
                   >
-                    {actionLoading === offer.id ? 'Refunding...' : 'Refund Escrow'}
+                    {actionLoading === offer.id ? 'Refunding...' : 'Return Funds to Buyer'}
                   </Button>
                 )}
 
