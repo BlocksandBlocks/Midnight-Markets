@@ -1,7 +1,7 @@
 'use client';
 
-import { useParams } from 'next/navigation'; // For client-side params
-import { useEffect, useState } from 'react'; // For actionLoading state
+import { useParams } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -10,14 +10,13 @@ import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { WalletConnect } from '@/components/wallet/WalletConnect';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
-import { contractService } from '@/lib/CONTRACT_SERVICE'; // For contract calls
-import { useWalletStore } from '@/lib/stores/walletStore'; // For address
+import { contractService } from '@/lib/CONTRACT_SERVICE';
+import { useWalletStore } from '@/lib/stores/walletStore';
 import { toast } from 'sonner';
 
 const OWNER_WALLET_ADDRESS = 'mn_addr_preprod14svvcfsm22emrjml0fr28l3rp0frycej3gpju5qmtl9kz2ecjnaq6c2nlq';
-const HIDDEN_OFFERS_STORAGE_KEY = 'nightmode.hiddenOffers';
 
-// Mock markets data (same as /markets page—fetch real from API later)
+// Keep existing seeded demo markets for now
 const markets = [
   {
     id: 1,
@@ -77,7 +76,7 @@ const markets = [
     offers: [
       { id: 501, seller: 'SpanishTeacher', amount: 1000, title: 'Spanish Lessons' },
       { id: 502, seller: 'KoreanProf', amount: 500, title: 'Korean Lessons' },
-      { id: 503, seller: 'PolishLinguist', amount: 500, title: 'Polish Lessons' }
+      { id: 503, seller: 'PolishLinguist', amount: 500, title: 'Polish Lessons' },
     ],
   },
   {
@@ -133,60 +132,56 @@ interface Market {
 
 export default function MarketPage() {
   const params = useParams();
-  const marketId = parseInt(params.id as string);
+  const marketId = parseInt(params.id as string, 10);
   const market = markets.find((m) => m.id === marketId) as Market;
-  const { isConnected, walletState } = useWalletStore(); // For address checks
-  const [actionLoading, setActionLoading] = useState<number | null>(null); // For per-offer button loading
+
+  const { isConnected, walletState } = useWalletStore();
+  const [actionLoading, setActionLoading] = useState<number | null>(null);
   const [hiddenOfferIds, setHiddenOfferIds] = useState<number[]>([]);
+
+  const refreshHiddenOffers = useCallback(() => {
+    const state = contractService.getState();
+    const hidden = Object.entries(state.offer_hidden || {})
+      .filter(([, isHidden]) => isHidden)
+      .map(([id]) => Number(id));
+    setHiddenOfferIds(hidden);
+  }, []);
+
+  useEffect(() => {
+    refreshHiddenOffers();
+  }, [refreshHiddenOffers]);
+
+  if (!market) {
+    notFound();
+  }
 
   const isOwner = walletState?.address === OWNER_WALLET_ADDRESS;
   const state = contractService.getState();
-  const marketSheriff = state.market_sheriffs[marketId];
+  const marketSheriff = state.market_sheriffs?.[marketId];
   const isSheriff = Boolean(walletState?.address && marketSheriff && String(marketSheriff) === walletState.address);
   const canModerateOffers = isOwner || isSheriff;
 
-  if (!market) {
-    notFound(); // Next.js 404 if market not found
-  }
+  const toggleOfferHidden = async (offerId: number, currentlyHidden: boolean) => {
+    if (!canModerateOffers || !walletState?.address) return;
 
-  useEffect(() => {
-    const storedHiddenOffers = localStorage.getItem(HIDDEN_OFFERS_STORAGE_KEY);
-    if (!storedHiddenOffers) return;
+    const functionName = isOwner ? 'set_offer_hidden' : 'set_offer_hidden_by_sheriff';
+    const params = isOwner
+      ? [offerId, !currentlyHidden, walletState.address]
+      : [offerId, marketId, walletState.address, !currentlyHidden];
 
-    try {
-      const parsed = JSON.parse(storedHiddenOffers) as number[];
-      setHiddenOfferIds(parsed);
-    } catch {
-      setHiddenOfferIds([]);
+    const result = await contractService.callFunction(functionName, params);
+
+    if (!result.success) {
+      toast.error(result.message || 'Failed to update offer visibility');
+      return;
     }
-  }, []);
 
-  const updateHiddenOffers = (ids: number[]) => {
-    setHiddenOfferIds(ids);
-    localStorage.setItem(HIDDEN_OFFERS_STORAGE_KEY, JSON.stringify(ids));
+    toast.success(currentlyHidden ? `Offer ${offerId} restored` : `Offer ${offerId} hidden`);
+    refreshHiddenOffers();
   };
 
-  const toggleOfferHidden = (offerId: number, currentlyHidden: boolean) => {
-    if (!canModerateOffers) return;
-
-    if (currentlyHidden) {
-      const next = hiddenOfferIds.filter((id) => id !== offerId);
-      updateHiddenOffers(next);
-      toast.success(`Offer ${offerId} restored`);
-    } else {
-      const next = [...hiddenOfferIds, offerId];
-      updateHiddenOffers(next);
-      toast.success(`Offer ${offerId} hidden from frontend`);
-    }
-  };
-
-  const visibleOffers = canModerateOffers
-    ? market.offers
-    : market.offers.filter((offer) => !hiddenOfferIds.includes(offer.id));
-
-  const isTimeout = (status: string) => {
-    // Mock 2-week timeout (real: compare contract current_timestamp to deposit/proof time)
-    return true; // Mock always true for testing—real: Date.now() - timestamp > 1209600000 ms (2 weeks)
+  const isTimeout = () => {
+    return true; // mock timeout behavior for now
   };
 
   const handleBuyerRefund = async (offerId: number) => {
@@ -199,11 +194,10 @@ export default function MarketPage() {
       const result = await contractService.callFunction('buyer_refund_timeout', [offerId]);
       if (result.success) {
         toast.success('Escrow refunded!');
-        // Refresh offers (e.g., refetch market data)
       } else {
         toast.error(result.message || 'Refund failed');
       }
-    } catch (error) {
+    } catch {
       toast.error('Refund failed');
     } finally {
       setActionLoading(null);
@@ -220,16 +214,19 @@ export default function MarketPage() {
       const result = await contractService.callFunction('seller_refund_timeout', [offerId]);
       if (result.success) {
         toast.success('Funds claimed!');
-        // Refresh offers
       } else {
         toast.error(result.message || 'Claim failed');
       }
-    } catch (error) {
+    } catch {
       toast.error('Claim failed');
     } finally {
       setActionLoading(null);
     }
   };
+
+  const visibleOffers = canModerateOffers
+    ? market.offers
+    : market.offers.filter((offer) => !hiddenOfferIds.includes(offer.id));
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-midnight-black via-gray-900 to-midnight-blue flex flex-col p-4">
@@ -264,7 +261,7 @@ export default function MarketPage() {
         </div>
       </div>
 
-      {/* Action Buttons – Only Post Offer at Top */}
+      {/* Action Buttons */}
       <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row gap-4 mb-8 justify-center">
         <Link href={`/markets/${marketId}/post-offer`}>
           <Button size="lg" className="w-full md:w-auto bg-gradient-to-r from-midnight-blue to-blue-600 text-white shadow-lg">
@@ -273,69 +270,67 @@ export default function MarketPage() {
         </Link>
       </div>
 
-      {/* Offers List with Per-Offer Buttons */}
+      {/* Offers */}
       <main className="flex-grow w-full max-w-6xl grid grid-cols-1 gap-6 pb-8">
         <h2 className="text-2xl font-bold text-white col-span-full">Active Offers</h2>
         {visibleOffers.map((offer) => {
           const isHidden = hiddenOfferIds.includes(offer.id);
 
           return (
-          <Card key={offer.id} className="bg-gray-900/50 text-white border border-gray-700/50">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-lg">{offer.title}</CardTitle>
-              <CardDescription className="text-gray-400">
-                Seller: {offer.seller} | Amount: {offer.amount} $Night
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="flex justify-end space-x-2">
-                <Link href={`/markets/${marketId}/accept-offer?offerId=${offer.id}`}>
-                  <Button variant="outline" size="sm">Accept</Button>
-                </Link>
-                <Link href={`/markets/${marketId}/cancel-offer?offerId=${offer.id}`}>
-                  <Button variant="destructive" size="sm">Cancel</Button>
-                </Link>
-                <Link href={`/markets/${marketId}/submit-proof?offerId=${offer.id}`}>
-                  <Button variant="secondary" size="sm">Submit Proof</Button>
-                </Link>
-              
-                {/* Buyer Refund (silent seller pre-proof) */}
-                {walletState?.address && isTimeout('Accepted') && (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => handleBuyerRefund(offer.id)}
-                    disabled={actionLoading === offer.id}
-                  >
-                    {actionLoading === offer.id ? 'Refunding...' : 'Refund Escrow'}
-                  </Button>
-                )}
-              
-                {/* Seller Claim (silent sheriff post-proof) */}
-                {walletState?.address && isTimeout('ProofSubmitted') && (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => handleSellerClaim(offer.id)}
-                    disabled={actionLoading === offer.id}
-                  >
-                    {actionLoading === offer.id ? 'Claiming...' : 'Claim Funds'}
-                  </Button>
-                )}
+            <Card key={offer.id} className="bg-gray-900/50 text-white border border-gray-700/50">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg">{offer.title}</CardTitle>
+                <CardDescription className="text-gray-400">
+                  Seller: {offer.seller} | Amount: {offer.amount} $Night
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="flex justify-end space-x-2">
+                  <Link href={`/markets/${marketId}/accept-offer?offerId=${offer.id}`}>
+                    <Button variant="outline" size="sm">Accept</Button>
+                  </Link>
+                  <Link href={`/markets/${marketId}/cancel-offer?offerId=${offer.id}`}>
+                    <Button variant="destructive" size="sm">Cancel</Button>
+                  </Link>
+                  <Link href={`/markets/${marketId}/submit-proof?offerId=${offer.id}`}>
+                    <Button variant="secondary" size="sm">Submit Proof</Button>
+                  </Link>
 
-                {canModerateOffers && (
-                  <Button
-                    variant={isHidden ? 'secondary' : 'destructive'}
-                    size="sm"
-                    onClick={() => toggleOfferHidden(offer.id, isHidden)}
-                  >
-                    {isHidden ? 'Unhide Offer' : 'Hide Offer'}
-                  </Button>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        );
+                  {walletState?.address && isTimeout() && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleBuyerRefund(offer.id)}
+                      disabled={actionLoading === offer.id}
+                    >
+                      {actionLoading === offer.id ? 'Refunding...' : 'Refund Escrow'}
+                    </Button>
+                  )}
+
+                  {walletState?.address && isTimeout() && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleSellerClaim(offer.id)}
+                      disabled={actionLoading === offer.id}
+                    >
+                      {actionLoading === offer.id ? 'Claiming...' : 'Claim Funds'}
+                    </Button>
+                  )}
+
+                  {canModerateOffers && (
+                    <Button
+                      variant={isHidden ? 'secondary' : 'destructive'}
+                      size="sm"
+                      onClick={() => toggleOfferHidden(offer.id, isHidden)}
+                    >
+                      {isHidden ? 'Unhide Offer' : 'Hide Offer'}
+                    </Button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          );
         })}
       </main>
 
