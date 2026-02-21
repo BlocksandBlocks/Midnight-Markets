@@ -11,6 +11,7 @@ interface MockOffer {
   market_id: number;
   amount: number;
   details_hash: string;
+  details?: string;
 }
 
 interface MockState {
@@ -120,19 +121,26 @@ class ContractService {
         }
 
         case 'post_offer': {
-          const [offer_id, market_id, seller_id, amount, details_hash] = params as [
+          const [offer_id, market_id, seller_id, amount, details_hash, details] = params as [
             number,
             number,
             number | string,
             number,
-            string
+            string,
+            string?
           ];
 
           if (this.mockState.market_hidden[market_id]) {
             throw new Error('Market is hidden');
           }
 
-          this.mockState.offers[offer_id] = { seller_id, market_id, amount, details_hash };
+          this.mockState.offers[offer_id] = {
+            seller_id,
+            market_id,
+            amount,
+            details_hash,
+            details: details || '',
+          };
           this.mockState.offer_hidden[offer_id] = false;
           this.persistState();
 
