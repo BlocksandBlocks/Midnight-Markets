@@ -15,60 +15,55 @@ import { Loader2 } from 'lucide-react';
 
 export default function CreateMarket() {
   const router = useRouter();
-  const { isConnected, walletState } = useWalletStore(); // Added walletState for auto-fill
+  const { isConnected, walletState } = useWalletStore();
   const [loading, setLoading] = useState(false);
-  const [marketId, setMarketId] = useState('Auto'); // Auto-generated, read-only
-  const [sheriffId, setSheriffId] = useState(''); // Temporary, real from mint
+  const [marketId] = useState('Auto');
+  const [sheriffId, setSheriffId] = useState('');
   const [marketName, setMarketName] = useState('');
   const [sheriffFee, setSheriffFee] = useState('');
-  const [platformFee, setPlatformFee] = useState(''); // For owner platform fee set
-  const [sheriffMode, setSheriffMode] = useState(0); // 0=Free, 1=Subscription, 2=NFT
-  const [nameHash, setNameHash] = useState(''); // Computed hash
-  const [previewPrice, setPreviewPrice] = useState(0); // Tiered price
-  const [nameAvailable, setNameAvailable] = useState(true); // Availability check
+  const [platformFee, setPlatformFee] = useState('');
+  const [sheriffMode, setSheriffMode] = useState(0);
+  const [nameHash, setNameHash] = useState('');
+  const [previewPrice, setPreviewPrice] = useState(0);
+  const [nameAvailable, setNameAvailable] = useState(true);
 
-  // Auto-populate sheriffId from wallet
   useEffect(() => {
     if (isConnected && walletState?.address) {
-      setSheriffId(walletState.address.slice(-6)); // Mock short ID
+      setSheriffId(walletState.address.slice(-6));
     }
   }, [isConnected, walletState]);
 
   const computeHashAndPrice = async (name: string) => {
     if (!name) return;
-  
-    // Hash name (SHA-256 hex for Bytes<32>)
+
     const encoder = new TextEncoder();
     const data = encoder.encode(name);
     const hashBuffer = await crypto.subtle.digest('SHA-256', data);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    const hash = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
     setNameHash(hash);
-  
-    // Tiered price (base 10 + geo 50 - niche 20/word >3)
+
     const wordCount = name.split(' ').length;
-    const isGeo = name.toLowerCase().includes('la') || name.toLowerCase().includes('los angeles'); // Mock geo detect
-    const nicheScore = wordCount > 3 ? (wordCount - 3) * 20 : 0; // Discount for specificity
+    const isGeo = name.toLowerCase().includes('la') || name.toLowerCase().includes('los angeles');
+    const nicheScore = wordCount > 3 ? (wordCount - 3) * 20 : 0;
     const geoPremium = isGeo ? 50 : 0;
     const price = 10 + geoPremium - nicheScore;
     setPreviewPrice(Math.max(price, 0));
-  
-    // Availability check (mock—real: contractService call to sheriff_names.member(nameHash))
-    setNameAvailable(true); // Mock available
+
+    setNameAvailable(true);
   };
 
   useEffect(() => {
-  const fetchMode = async () => {
-    try {
-      // Mock mode for testing—real: contract read sheriff_mode
-      setSheriffMode(0); // Mock Season 1 free—real: await contractService.getSheriffMode()
-    } catch (error) {
-      console.error('Mode fetch failed');
-    }
-  };
-  fetchMode();
-}, []);
-  
+    const fetchMode = async () => {
+      try {
+        setSheriffMode(0);
+      } catch (error) {
+        console.error('Mode fetch failed');
+      }
+    };
+    fetchMode();
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isConnected) {
@@ -76,18 +71,17 @@ export default function CreateMarket() {
       return;
     }
     setLoading(true);
-  
+
     try {
-      // Auto Market ID (mock next—real: await contractService.getNextMarketId())
-      const nextMarketId = 1; // Mock; real: from contract total_markets + 1
-  
+      const nextMarketId = contractService.getNextMarketId();
+
       const result = await contractService.callFunction('create_market', [
         nextMarketId,
-        walletState?.address || 'mock_sheriff', // sheriff_id = caller (free mode)
+        walletState?.address || 'mock_sheriff',
         marketName,
-        parseInt(sheriffFee),
+        parseInt(sheriffFee, 10),
       ]);
-  
+
       if (result.success) {
         toast.success(result.message || 'Market created successfully!');
         router.push('/markets');
@@ -98,12 +92,6 @@ export default function CreateMarket() {
       toast.error(error instanceof Error ? error.message : 'Action failed');
     } finally {
       setLoading(false);
-    }
-    // Owner platform fee set
-    if (walletState?.address === 'mn_addr_preprod14svvcfsm22emrjml0fr28l3rp0frycej3gpju5qmtl9kz2ecjnaq6c2nlq' && platformFee) {
-      const feeBps = Math.round(parseFloat(platformFee) * 100);
-      const result = await contractService.callFunction('set_platform_fee', [feeBps, walletState.address]);
-      if (result.success) toast.success(`Platform fee set to ${platformFee}%`);
     }
   };
 
@@ -123,9 +111,7 @@ export default function CreateMarket() {
           <Card className="w-full bg-gray-900/50 text-white border border-gray-700/50 backdrop-blur-sm">
             <CardHeader>
               <CardTitle className="text-2xl text-center">Become a Sheriff</CardTitle>
-              <CardDescription className="text-center">
-                Connect wallet to create your market.
-              </CardDescription>
+              <CardDescription className="text-center">Connect wallet to create your market.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-center text-gray-400">Please connect your wallet to proceed.</p>
@@ -154,22 +140,15 @@ export default function CreateMarket() {
         <Card className="w-full bg-gray-900/50 text-white border border-gray-700/50 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="text-2xl text-center">Become a Sheriff</CardTitle>
-            <CardDescription className="text-center">
-              Create your market and earn fees as Sheriff.
-            </CardDescription>
+            <CardDescription className="text-center">Create your market and earn fees as Sheriff.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="text-sm font-medium mb-2 block text-gray-300">Market ID (Auto-generated)</label>
-                <Input
-                  type="text"
-                  value={marketId}
-                  disabled
-                  className="bg-gray-800/50"
-                />
+                <Input type="text" value={marketId} disabled className="bg-gray-800/50" />
               </div>
-             <div>
+              <div>
                 <label className="text-sm font-medium mb-2 block text-gray-300">Market Name</label>
                 <Input
                   type="text"
@@ -230,7 +209,7 @@ export default function CreateMarket() {
                       className="w-full"
                     />
                   </div>
-                  <Button 
+                  <Button
                     onClick={async () => {
                       if (!platformFee) return toast.error('Enter a fee');
                       setLoading(true);
@@ -239,11 +218,11 @@ export default function CreateMarket() {
                         const result = await contractService.callFunction('set_platform_fee', [feeBps, walletState?.address]);
                         if (result.success) {
                           toast.success(`Platform fee set to ${platformFee}%`);
-                          setPlatformFee(''); // Clear input
+                          setPlatformFee('');
                         } else {
                           toast.error(result.message || 'Fee set failed');
                         }
-                      } catch (error) {
+                      } catch {
                         toast.error('Fee set failed');
                       } finally {
                         setLoading(false);
