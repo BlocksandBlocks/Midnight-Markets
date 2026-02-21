@@ -21,13 +21,15 @@ interface MockState {
   market_hidden: Record<number, boolean>;
   offers: Record<number, MockOffer>;
   offer_hidden: Record<number, boolean>;
-  sheriff_names: Record<string, number>; // For NFT name uniqueness
+  sheriff_names: Record<string, number>; // name_hash -> sheriff_nft_id
 }
+
+const STORAGE_KEY = 'nightmode.mock.contract.state';
 
 class ContractService {
   private mockState: MockState = {
     owner_id: 1,
-    platform_fee_percentage: 0, // 0%
+    platform_fee_percentage: 0, // default 0%
     market_sheriffs: {},
     market_names: {},
     market_hidden: {},
@@ -35,6 +37,38 @@ class ContractService {
     offer_hidden: {},
     sheriff_names: {},
   };
+
+  constructor() {
+    this.loadFromStorage();
+  }
+
+  private loadFromStorage(): void {
+    if (typeof window === 'undefined') return;
+
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+
+      const parsed = JSON.parse(raw) as Partial<MockState>;
+      this.mockState = {
+        ...this.mockState,
+        ...parsed,
+        market_sheriffs: parsed.market_sheriffs || {},
+        market_names: parsed.market_names || {},
+        market_hidden: parsed.market_hidden || {},
+        offers: parsed.offers || {},
+        offer_hidden: parsed.offer_hidden || {},
+        sheriff_names: parsed.sheriff_names || {},
+      };
+    } catch {
+      // Ignore malformed local state
+    }
+  }
+
+  private persistState(): void {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(this.mockState));
+  }
 
   getState(): MockState {
     return {
@@ -48,8 +82,14 @@ class ContractService {
     };
   }
 
+  getNextMarketId(): number {
+    const ids = Object.keys(this.mockState.market_sheriffs).map(Number);
+    if (ids.length === 0) return 1;
+    return Math.max(...ids) + 1;
+  }
+
   async callFunction(functionName: string, params: any[]): Promise<CallResult> {
-    // Always use mocks for now (toggle with env later)
+    // Mock-only for now
     return this.mockCall(functionName, params);
   }
 
@@ -57,7 +97,13 @@ class ContractService {
     try {
       switch (functionName) {
         case 'create_market': {
-          const [market_id, sheriff_id, market_name, sheriff_fee] = params as [number, number | string, string, number];
+          const [market_id, sheriff_id, market_name, sheriff_fee] = params as [
+            number,
+            number | string,
+            string,
+            number
+          ];
+
           if (this.mockState.market_sheriffs[market_id]) {
             throw new Error('Market ID already exists');
           }
@@ -65,12 +111,22 @@ class ContractService {
           this.mockState.market_sheriffs[market_id] = sheriff_id;
           this.mockState.market_names[market_id] = market_name;
           this.mockState.market_hidden[market_id] = false;
+          this.persistState();
 
-          return { success: true, message: `Market ${market_name} created with sheriff fee ${sheriff_fee}%` };
+          return {
+            success: true,
+            message: `Market ${market_name} created with sheriff fee ${sheriff_fee}%`,
+          };
         }
 
         case 'post_offer': {
-          const [offer_id, market_id, seller_id, amount, details_hash] = params as [number, number, number | string, number, string];
+          const [offer_id, market_id, seller_id, amount, details_hash] = params as [
+            number,
+            number,
+            number | string,
+            number,
+            string
+          ];
 
           if (this.mockState.market_hidden[market_id]) {
             throw new Error('Market is hidden');
@@ -78,11 +134,14 @@ class ContractService {
 
           this.mockState.offers[offer_id] = { seller_id, market_id, amount, details_hash };
           this.mockState.offer_hidden[offer_id] = false;
+          this.persistState();
+
           return { success: true, message: `Offer ${offer_id} posted for ${amount} $Night` };
         }
 
         case 'accept_offer': {
-          const [offer_id, buyer_id, market_id, deposited_amount] = params as [number, number | string, number, number];
+          const [offer_id, buyer_id, market_id] = params as [number, number | string, number, number];
+
           if (!this.mockState.offers[offer_id]) {
             throw new Error('Offer not found');
           }
@@ -98,6 +157,7 @@ class ContractService {
 
         case 'release_funds': {
           const [offer_id, sheriff_id, market_id] = params as [number, number | string, number];
+
           if (!this.mockState.offers[offer_id]) {
             throw new Error('Offer not found');
           }
@@ -113,44 +173,50 @@ class ContractService {
 
         case 'set_platform_fee': {
           const [new_fee, owner_id] = params as [number, number | string];
-          // Mock allow any caller for testing—real: check owner_id
-          // if (owner_id !== this.mockState.owner_id) {
-          //   throw new Error("Unauthorized: Only owner can set fee");
-          // }
           this.mockState.platform_fee_percentage = new_fee;
+          this.persistState();
           return { success: true, message: `Platform fee set to ${new_fee} bps by owner ${owner_id}` };
         }
 
         case 'set_market_hidden': {
-          const [market_id, hidden, caller_id] = params as [number, boolean, number | string];
+          const [market_id, hidden] = params as [number, boolean, number | string];
 
           if (!this.mockState.market_sheriffs[market_id]) {
             throw new Error('Market does not exist');
           }
 
           this.mockState.market_hidden[market_id] = hidden;
+          this.persistState();
+
           return {
             success: true,
-            message: `Market ${market_id} ${hidden ? 'hidden' : 'unhidden'} by owner ${caller_id}`,
+            message: `Market ${market_id} ${hidden ? 'hidden' : 'unhidden'}`,
           };
         }
 
         case 'set_offer_hidden': {
-          const [offer_id, hidden, caller_id] = params as [number, boolean, number | string];
+          const [offer_id, hidden] = params as [number, boolean, number | string];
 
           if (!this.mockState.offers[offer_id]) {
             throw new Error('Offer does not exist');
           }
 
           this.mockState.offer_hidden[offer_id] = hidden;
+          this.persistState();
+
           return {
             success: true,
-            message: `Offer ${offer_id} ${hidden ? 'hidden' : 'unhidden'} by owner ${caller_id}`,
+            message: `Offer ${offer_id} ${hidden ? 'hidden' : 'unhidden'}`,
           };
         }
 
         case 'set_offer_hidden_by_sheriff': {
-          const [offer_id, market_id, sheriff_id, hidden] = params as [number, number, number | string, boolean];
+          const [offer_id, market_id, sheriff_id, hidden] = params as [
+            number,
+            number,
+            number | string,
+            boolean
+          ];
 
           const offer = this.mockState.offers[offer_id];
           if (!offer) {
@@ -166,20 +232,25 @@ class ContractService {
           }
 
           this.mockState.offer_hidden[offer_id] = hidden;
+          this.persistState();
+
           return {
             success: true,
-            message: `Offer ${offer_id} ${hidden ? 'hidden' : 'unhidden'} by sheriff ${sheriff_id}`,
+            message: `Offer ${offer_id} ${hidden ? 'hidden' : 'unhidden'} by sheriff`,
           };
         }
 
         case 'cancel_offer_by_sheriff': {
-          const [offer_id, sheriff_id, market_id] = params as [number, number | string, number];
+          const [offer_id, sheriff_id] = params as [number, number | string, number];
           if (!this.mockState.offers[offer_id]) {
             throw new Error('Offer not found');
           }
+
           delete this.mockState.offers[offer_id];
           delete this.mockState.offer_hidden[offer_id];
-          return { success: true, message: `Offer ${offer_id} canceled by sheriff ${sheriff_id} in market ${market_id}` };
+          this.persistState();
+
+          return { success: true, message: `Offer ${offer_id} canceled by sheriff ${sheriff_id}` };
         }
 
         case 'cancel_offer_by_seller': {
@@ -187,8 +258,11 @@ class ContractService {
           if (!this.mockState.offers[offer_id]) {
             throw new Error('Offer not found');
           }
+
           delete this.mockState.offers[offer_id];
           delete this.mockState.offer_hidden[offer_id];
+          this.persistState();
+
           return { success: true, message: `Offer ${offer_id} canceled by seller ${seller_id}` };
         }
 
@@ -197,10 +271,11 @@ class ContractService {
           if (!this.mockState.offers[offer_id]) {
             throw new Error('Offer not found');
           }
-          if (this.mockState.offer_hidden[offer_id]) {
-            throw new Error('Offer is hidden');
-          }
-          return { success: true, message: `Proof ${proof_hash} submitted for offer ${offer_id} by seller ${seller_id}` };
+
+          return {
+            success: true,
+            message: `Proof ${proof_hash} submitted for offer ${offer_id} by ${seller_id}`,
+          };
         }
 
         case 'mint_sheriff_nft': {
@@ -208,8 +283,15 @@ class ContractService {
           if (this.mockState.sheriff_names[name_hash]) {
             throw new Error('Market name already taken');
           }
+
           this.mockState.sheriff_names[name_hash] = nft_id;
-          return { success: true, message: `Sheriff NFT ${nft_id} minted for name hash ${name_hash.slice(0, 8)}...`, data: { nft_id } };
+          this.persistState();
+
+          return {
+            success: true,
+            message: `Sheriff NFT ${nft_id} minted for name hash ${name_hash.slice(0, 8)}...`,
+            data: { nft_id },
+          };
         }
 
         default:
@@ -217,27 +299,6 @@ class ContractService {
       }
     } catch (error) {
       return { success: false, message: error instanceof Error ? error.message : 'Unknown error' };
-    }
-  }
-
-  private updateState(functionName: string, params: any[]): void {
-    // Sync mockState after real call
-    switch (functionName) {
-      case 'post_offer': {
-        const [offer_id, market_id, seller_id, amount, details_hash] = params;
-        this.mockState.offers[offer_id] = { seller_id, market_id, amount, details_hash };
-        this.mockState.offer_hidden[offer_id] = false;
-        break;
-      }
-      case 'create_market': {
-        const [market_id, sheriff_id, market_name] = params;
-        this.mockState.market_sheriffs[market_id] = sheriff_id;
-        this.mockState.market_names[market_id] = market_name;
-        this.mockState.market_hidden[market_id] = false;
-        break;
-      }
-      default:
-        break;
     }
   }
 }
