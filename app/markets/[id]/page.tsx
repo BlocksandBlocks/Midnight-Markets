@@ -38,6 +38,7 @@ export default function MarketPage() {
   const [actionLoading, setActionLoading] = useState<number | null>(null);
   const [market, setMarket] = useState<MarketView | null>(null);
   const [offers, setOffers] = useState<OfferView[]>([]);
+  const [hasLoaded, setHasLoaded] = useState(false);
 
   const refreshMarketData = useCallback(() => {
     const state = contractService.getState();
@@ -46,6 +47,7 @@ export default function MarketPage() {
     if (!sheriffId) {
       setMarket(null);
       setOffers([]);
+      setHasLoaded(true);
       return;
     }
 
@@ -68,6 +70,7 @@ export default function MarketPage() {
       offersCount: marketOffers.length,
     });
     setOffers(marketOffers);
+    setHasLoaded(true);
   }, [marketId]);
 
   useEffect(() => {
@@ -144,6 +147,14 @@ export default function MarketPage() {
       setActionLoading(null);
     }
   };
+
+  if (!hasLoaded) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-midnight-black via-gray-900 to-midnight-blue flex items-center justify-center text-gray-300">
+        Loading market...
+      </div>
+    );
+  }
 
   if (!market) {
     notFound();
