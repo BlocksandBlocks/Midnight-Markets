@@ -1,86 +1,80 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image'; // Add this import for Next.js Image component
+import Image from 'next/image';
+import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { WalletConnect } from '@/components/wallet/WalletConnect';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
-import { useState, useEffect } from 'react'; // For dynamic markets state
-import { contractService } from '@/lib/CONTRACT_SERVICE'; // For mock state
+import { contractService } from '@/lib/CONTRACT_SERVICE';
 import { useWalletStore } from '@/lib/stores/walletStore';
 import { toast } from 'sonner';
 
 const OWNER_WALLET_ADDRESS = 'mn_addr_preprod14svvcfsm22emrjml0fr28l3rp0frycej3gpju5qmtl9kz2ecjnaq6c2nlq';
-const HIDDEN_MARKETS_STORAGE_KEY = 'nightmode.hiddenMarkets';
+
+interface MarketCard {
+  id: number;
+  name: string;
+  sheriff: string;
+  description: string;
+  offersCount: number;
+  image: string;
+  isHidden: boolean;
+}
 
 export default function Markets() {
-    const { walletState } = useWalletStore();
-    const isOwner = walletState?.address === OWNER_WALLET_ADDRESS;
-    const [markets, setMarkets] = useState<Array<{
-      id: number;
-      name: string;
-      sheriff: string;
-      description: string;
-      offersCount: number;
-      image: string;
-    }>>([]);
-    const [hiddenMarketIds, setHiddenMarketIds] = useState<number[]>([]);
+  const { walletState } = useWalletStore();
+  const isOwner = walletState?.address === OWNER_WALLET_ADDRESS;
+  const [markets, setMarkets] = useState<MarketCard[]>([]);
 
-    useEffect(() => {
-      const storedHiddenMarkets = localStorage.getItem(HIDDEN_MARKETS_STORAGE_KEY);
-      if (!storedHiddenMarkets) return;
+  const refreshMarkets = useCallback(() => {
+    const state = contractService.getState();
 
-      try {
-        const parsed = JSON.parse(storedHiddenMarkets) as number[];
-        setHiddenMarketIds(parsed);
-      } catch {
-        setHiddenMarketIds([]);
-      }
-    }, []);
+    const dynamicMarkets = Object.entries(state.market_sheriffs).map(([idStr, sheriffId]) => {
+      const id = Number(idStr);
+      const name = state.market_names?.[id] || `Market ${id}`;
+      const offersCount = Object.values(state.offers).filter((offer) => offer.market_id === id).length;
+      const isHidden = Boolean(state.market_hidden?.[id]);
 
-    useEffect(() => {
-      // Fetch from mock state (updates on create)
-      const state = contractService.getState();
-      // Convert mock maps to array for render (adjust keys as needed)
-      const dynamicMarkets = Object.entries(state.market_sheriffs).map(([idStr, sheriff_id]) => {
-          const id = Number(idStr);
-          const name = `Market ${id}`; // Mock name (real: from contract market_names map)
-          return {
-            id,
-            name,
-            sheriff: `Sheriff ${sheriff_id}`,
-            description: name, // Use name as description (or add market_descriptions later)
-            offersCount: 0, // Mock—real: count offers per market
-            image: '/moon.png',
-          };
-        });
-      setMarkets(dynamicMarkets);
-    }, []);
+      return {
+        id,
+        name,
+        sheriff: `Sheriff ${sheriffId}`,
+        description: name,
+        offersCount,
+        image: '/moon.png',
+        isHidden,
+      };
+    });
 
-    const updateHiddenMarkets = (ids: number[]) => {
-      setHiddenMarketIds(ids);
-      localStorage.setItem(HIDDEN_MARKETS_STORAGE_KEY, JSON.stringify(ids));
-    };
+    setMarkets(dynamicMarkets);
+  }, []);
 
-    const toggleMarketHidden = (marketId: number, currentlyHidden: boolean) => {
-      if (!isOwner) return;
+  useEffect(() => {
+    refreshMarkets();
+  }, [refreshMarkets]);
 
-      if (currentlyHidden) {
-        const next = hiddenMarketIds.filter((id) => id !== marketId);
-        updateHiddenMarkets(next);
-        toast.success(`Market ${marketId} restored`);
-      } else {
-        const next = [...hiddenMarketIds, marketId];
-        updateHiddenMarkets(next);
-        toast.success(`Market ${marketId} hidden from frontend`);
-      }
-    };
+  const toggleMarketHidden = async (marketId: number, currentlyHidden: boolean) => {
+    if (!isOwner || !walletState?.address) return;
 
-    const visibleMarkets = isOwner
-      ? markets
-      : markets.filter((market) => !hiddenMarketIds.includes(market.id));
+    const result = await contractService.callFunction('set_market_hidden', [
+      marketId,
+      !currentlyHidden,
+      walletState.address,
+    ]);
+
+    if (!result.success) {
+      toast.error(result.message || 'Failed to update market visibility');
+      return;
+    }
+
+    toast.success(currentlyHidden ? `Market ${marketId} restored` : `Market ${marketId} hidden`);
+    refreshMarkets();
+  };
+
+  const visibleMarkets = isOwner ? markets : markets.filter((market) => !market.isHidden);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-midnight-black via-gray-900 to-midnight-blue flex flex-col items-center p-4">
@@ -98,9 +92,11 @@ export default function Markets() {
       {/* Instruction + Create Button */}
       <div className="w-full max-w-4xl text-center py-8">
         <h2 className="text-2xl font-bold text-white mb-4">Browse Existing Markets</h2>
-        <p className="text-gray-300 mb-6">Don't see the market you need? Create one and become its Sheriff to earn fees.</p>
+        <p className="text-gray-300 mb-6">
+          Don't see the market you need? Create one and become its Sheriff to earn fees.
+        </p>
         <Link href="/create-market">
-          <Button size="lg" className="bg-gradient-to-r from-midnight-blue to-blue-600 text-white shadow-lg"> {/* Solid gradient for brightness */}
+          <Button size="lg" className="bg-gradient-to-r from-midnight-blue to-blue-600 text-white shadow-lg">
             Create a Market (Become Sheriff)
           </Button>
         </Link>
@@ -108,10 +104,7 @@ export default function Markets() {
 
       {/* Markets Grid */}
       <main className="flex-grow w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-8">
-        {visibleMarkets.map((market) => {
-          const isHidden = hiddenMarketIds.includes(market.id);
-
-          return (
+        {visibleMarkets.map((market) => (
           <Link key={market.id} href={`/markets/${market.id}`}>
             <Card className="bg-gray-900/50 text-white border border-gray-700/50 backdrop-blur-sm hover:border-midnight-blue/70 transition-all cursor-pointer">
               <CardHeader className="pb-4">
@@ -125,38 +118,37 @@ export default function Markets() {
                   />
                 </div>
                 <CardTitle className="text-xl">{market.name}</CardTitle>
-                <CardDescription className="text-gray-400">
-                  {market.description}
-                </CardDescription>
+                <CardDescription className="text-gray-400">{market.description}</CardDescription>
               </CardHeader>
+
               <CardContent className="pt-0">
                 <div className="flex justify-between items-center mb-3">
                   <Badge variant="secondary" className="text-xs">
                     Sheriff: {market.sheriff}
                   </Badge>
-                  <Badge variant={isHidden ? 'destructive' : 'outline'} className="text-xs">
-                    {isHidden ? 'Hidden' : `${market.offersCount} Offers`}
+                  <Badge variant={market.isHidden ? 'destructive' : 'outline'} className="text-xs">
+                    {market.isHidden ? 'Hidden' : `${market.offersCount} Offers`}
                   </Badge>
                 </div>
 
                 {isOwner && (
                   <Button
-                    variant={isHidden ? 'secondary' : 'destructive'}
+                    variant={market.isHidden ? 'secondary' : 'destructive'}
                     size="sm"
                     className="w-full"
                     onClick={(event) => {
                       event.preventDefault();
                       event.stopPropagation();
-                      toggleMarketHidden(market.id, isHidden);
+                      toggleMarketHidden(market.id, market.isHidden);
                     }}
                   >
-                    {isHidden ? 'Unhide Market' : 'Hide Market'}
+                    {market.isHidden ? 'Unhide Market' : 'Hide Market'}
                   </Button>
                 )}
               </CardContent>
             </Card>
           </Link>
-        )})}
+        ))}
       </main>
 
       {/* Footer */}
