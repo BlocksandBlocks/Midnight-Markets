@@ -27,6 +27,7 @@ interface OfferView {
   seller: string;
   amount: number;
   title: string;
+  details: string;
   hidden: boolean;
 }
 
@@ -58,7 +59,8 @@ export default function MarketPage() {
         id: Number(offerId),
         seller: String(offer.seller_id),
         amount: offer.amount,
-        title: `Offer ${offerId}`,
+        title: offer.details?.trim() || `Offer ${offerId}`,
+        details: offer.details?.trim() || 'No offer details provided.',
         hidden: Boolean(state.offer_hidden?.[Number(offerId)]),
       }))
       .sort((a, b) => a.id - b.id);
@@ -217,6 +219,7 @@ export default function MarketPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="pt-0">
+              <p className="text-sm text-gray-300 mb-4 whitespace-pre-wrap">{offer.details}</p>
               <div className="flex justify-end space-x-2 flex-wrap gap-y-2">
                 <Link href={`/markets/${marketId}/accept-offer?offerId=${offer.id}`}>
                   <Button variant="outline" size="sm">Accept</Button>
